@@ -8,6 +8,30 @@ const {
 const { BCRYPT_WORK_FACTOR } = require("../config");
 
 class User {
+  static async authenticate(username, password) {
+    const res = await db.query(
+      `SELECT 
+              username, 
+              password,
+              total_money AS "totalMoney" 
+             FROM 
+              users 
+             WHERE 
+              username = $1`,
+      [username]
+    );
+
+    const user = res.rows[0];
+    console.log("here is user", user);
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      delete user.password;
+      console.log("this is returned", user);
+      return user;
+    }
+
+    throw new NotFoundError("Invalid username/password");
+  }
   static async register({ username, password, totalMoney }) {
     const duplicateCheck = await db.query(
       `SELECT username FROM users WHERE username = $1`,
