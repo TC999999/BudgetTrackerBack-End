@@ -18,7 +18,8 @@ CREATE TABLE budgets(
     id SERIAL PRIMARY KEY,
     title VARCHAR(30) NOT NULL,
     username VARCHAR (25) REFERENCES users ON DELETE CASCADE,
-    money_allocated DECIMAL(10,2) NOT NULL CHECK (money_allocated>=0)
+    money_allocated DECIMAL(10,2) NOT NULL CHECK (money_allocated>=0),
+    money_spent DECIMAL(10,2) NOT NULL DEFAULT 0.00
 );
 
 CREATE TABLE expenses(

@@ -2,6 +2,7 @@ const express = require("express");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/users");
 const { createToken } = require("../helpers/token");
+const { ensureLoggedIn } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -13,9 +14,12 @@ router.get("/token", async function (req, res, next) {
 router.post("/login", async function (req, res, next) {
   try {
     const { username, password } = req.body;
-    console.log({ username, password });
+    if (!username || !password) {
+      throw new BadRequestError(
+        "Both username and password fields must be filled!"
+      );
+    }
     const user = await User.authenticate(username, password);
-    console.log("user is authenticated", user);
     const token = createToken(user);
     res
       .cookie("refresh_token", token, {
@@ -25,7 +29,7 @@ router.post("/login", async function (req, res, next) {
         sameSite: true,
       })
       .status(200);
-    res.send();
+    return res.status(200).json(user);
   } catch (err) {
     return next(err);
   }
@@ -33,6 +37,10 @@ router.post("/login", async function (req, res, next) {
 
 router.post("/register", async function (req, res, next) {
   try {
+    // console.log(req.body);
+    // if (!passwordValidator(req.body.password)) {
+    //   throw new BadRequestError("Password must be between 5 to 30 characters!");
+    // }
     const newUser = await User.register(req.body);
     const token = createToken(newUser);
     res
@@ -43,8 +51,18 @@ router.post("/register", async function (req, res, next) {
         sameSite: true,
       })
       .status(201);
-    // res.send();
-    return res.status(201).json({ ...newUser, token });
+    delete newUser.password;
+    return res.status(201).json({ newUser, token });
+  } catch (err) {
+    // console.log("ERROR IN ROUTER", err);
+    return next(err);
+  }
+});
+
+router.get("/logOut", ensureLoggedIn, async function (req, res, next) {
+  try {
+    res.clearCookie("refresh_token").status(200);
+    res.send();
   } catch (err) {
     return next(err);
   }

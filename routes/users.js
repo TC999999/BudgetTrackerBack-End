@@ -18,6 +18,17 @@ router.get("/get/currentuser", ensureLoggedIn, async function (req, res, next) {
     const user = await User.get(res.locals.user.username);
     return res.status(200).json({ user });
   } catch (err) {
+    console.log(err);
+    return next(err);
+  }
+});
+
+router.patch("/update/assets", ensureLoggedIn, async function (req, res, next) {
+  try {
+    const { username, newAssets } = req.body;
+    const user = await User.updateAssets(username, newAssets);
+    return res.status(200).json({ user });
+  } catch (err) {
     return next(err);
   }
 });

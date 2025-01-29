@@ -7,11 +7,12 @@ const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
+const budgetRoutes = require("./routes/budgets");
+const expenseRoutes = require("./routes/expenses");
 
 const app = express();
 
 // Parses login tokens to browser cookies
-
 app.use(cookieParser());
 app.use(
   cors({
@@ -20,13 +21,15 @@ app.use(
   })
 );
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 //for development use only
 app.use(morgan("tiny"));
 app.use(authenticateJWT);
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/budgets", budgetRoutes);
+app.use("/expenses", expenseRoutes);
 
 // 404 Error Handler
 app.use(function (req, res, next) {
