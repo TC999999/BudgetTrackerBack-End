@@ -29,9 +29,10 @@ class User {
   static async get(username) {
     const res = await UserCollection.findOne({ username })
       .select("username totalAssets _id budgets expenses")
-      .populate("budgets");
-    // const res = await UserCollection.find({ username });
-    // console.log(res);
+      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate("expenses")
+      .sort({ date: -1 })
+      .limit(10);
     let user = res;
     if (!user) throw new NotFoundError(`User of ${username} does not exist`);
     return user;
@@ -52,6 +53,15 @@ class User {
     const res = await UserCollection.findOneAndUpdate(
       { username },
       { $push: { budgets: newBudgetID } },
+      { new: true }
+    );
+    return res;
+  }
+
+  static async addExpense(username, newExpenseID) {
+    const res = await UserCollection.findOneAndUpdate(
+      { username },
+      { $push: { expenses: newExpenseID } },
       { new: true }
     );
     return res;

@@ -16,17 +16,4 @@ router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
-router.get("/get/:id", ensureLoggedIn, async function (req, res, next) {
-  try {
-    // console.log(req);
-    let username = res.locals.user.username;
-    const budget = await Budget.getBudget(username, req.params.id);
-    console.log(budget);
-    return res.status(200).json({ budget });
-  } catch (err) {
-    // console.log("ERROR IS HERE TO RUIN MY LIFE");
-    return next(err);
-  }
-});
-
 module.exports = router;

@@ -37,10 +37,6 @@ router.post("/login", async function (req, res, next) {
 
 router.post("/register", async function (req, res, next) {
   try {
-    // console.log(req.body);
-    // if (!passwordValidator(req.body.password)) {
-    //   throw new BadRequestError("Password must be between 5 to 30 characters!");
-    // }
     const newUser = await User.register(req.body);
     const token = createToken(newUser);
     res
@@ -54,7 +50,6 @@ router.post("/register", async function (req, res, next) {
     delete newUser.password;
     return res.status(201).json({ newUser, token });
   } catch (err) {
-    // console.log("ERROR IN ROUTER", err);
     return next(err);
   }
 });

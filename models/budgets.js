@@ -1,6 +1,5 @@
 const { BadRequestError, UnauthorizedError } = require("../expressError");
 const { BudgetCollection } = require("../schemas/budgets");
-const { UserCollection } = require("../schemas/users");
 
 class Budget {
   static async addBudget(title, moneyAllocated) {
@@ -12,17 +11,13 @@ class Budget {
     }
   }
 
-  static async getBudget(username, budgetID) {
-    const user = await UserCollection.findOne({
-      username,
-      budgets: { $in: [budgetID] },
-    });
-    if (user) {
-      const budget = await BudgetCollection.findById(budgetID);
-      return budget;
-    }
-
-    throw new UnauthorizedError("This is not your budget");
+  static async addExpense(budgetID, expenseID, transaction) {
+    const res = BudgetCollection.findByIdAndUpdate(
+      budgetID,
+      { $push: { expenses: expenseID }, $inc: { moneySpent: transaction } },
+      { new: true }
+    );
+    return res;
   }
 }
 
