@@ -13,10 +13,8 @@ const ExpenseSchema = new Schema(
     },
     date: {
       type: Date,
-      default: new Date(),
+      default: Date.now,
       required: true,
-      //   get: (d) => d.toLocaleDateString(),
-      //   get: (d) => new Date(d),
     },
   },
   { versionKey: false, toJSON: { getters: true }, id: false }

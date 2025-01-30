@@ -16,7 +16,7 @@ class Budget {
       budgetID,
       { $push: { expenses: expenseID }, $inc: { moneySpent: transaction } },
       { new: true }
-    );
+    ).populate("expenses");
     return res;
   }
 }
