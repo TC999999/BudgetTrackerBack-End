@@ -63,7 +63,28 @@ class User {
       { username },
       { $push: { expenses: newExpenseID } },
       { new: true }
-    );
+    )
+      .select("budgets expenses")
+      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "expenses",
+        options: { perDocumentLimit: 10, sort: { date: -1 } },
+      });
+    return res;
+  }
+
+  static async removeExpense(username, expenseID) {
+    const res = await UserCollection.findOneAndUpdate(
+      { username },
+      { $pull: { expenses: expenseID } },
+      { new: true }
+    )
+      .select("budgets expenses")
+      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "expenses",
+        options: { perDocumentLimit: 10, sort: { date: -1 } },
+      });
     return res;
   }
 }
