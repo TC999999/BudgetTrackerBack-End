@@ -7,10 +7,17 @@ const router = express.Router();
 
 router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
   try {
-    const { title, username, moneyAllocated } = req.body;
+    const { title, moneyAllocated } = req.body;
     const budget = await Budget.addBudget(title, moneyAllocated);
-    await User.addBudget(username, budget._id);
-    return res.status(201).json({ budget });
+    const assets = await User.updateAssets(
+      res.locals.user.username,
+      -moneyAllocated
+    );
+    const user = await User.addBudget(res.locals.user.username, budget._id);
+
+    return res
+      .status(201)
+      .json({ newUserBudgets: user.budgets, newAssets: assets.totalAssets });
   } catch (err) {
     return next(err);
   }

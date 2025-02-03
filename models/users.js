@@ -40,12 +40,12 @@ class User {
     return user;
   }
 
-  static async updateAssets(username, newAssets) {
+  static async updateAssets(username, addedAssets) {
     const res = await UserCollection.findOneAndUpdate(
       { username },
-      { totalAssets: newAssets },
+      { $inc: { totalAssets: addedAssets } },
       { new: true }
-    );
+    ).select("totalAssets");
     return res;
   }
 
@@ -54,7 +54,9 @@ class User {
       { username },
       { $push: { budgets: newBudgetID } },
       { new: true }
-    );
+    )
+      .select("budgets")
+      .populate({ path: "budgets", populate: { path: "expenses" } });
     return res;
   }
 
