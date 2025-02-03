@@ -3,6 +3,7 @@ const { Schema, model } = require("mongoose");
 const ExpenseSchema = new Schema(
   {
     title: { type: String, required: true },
+    budgetID: { type: Schema.Types.ObjectId, ref: "Budget" },
     transaction: {
       type: Number,
       min: 1,

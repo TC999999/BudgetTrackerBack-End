@@ -2,9 +2,13 @@ const { BadRequestError, UnauthorizedError } = require("../expressError");
 const { ExpenseCollection } = require("../schemas/expenses");
 
 class Expenses {
-  static async addExpense(title, transaction) {
+  static async addExpense(title, transaction, budgetID) {
     try {
-      const res = await ExpenseCollection.create({ title, transaction });
+      const res = await ExpenseCollection.create({
+        title,
+        transaction,
+        budgetID,
+      });
       return res;
     } catch (err) {
       throw new BadRequestError(err.message);

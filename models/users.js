@@ -5,9 +5,13 @@ const { UserCollection } = require("../schemas/users");
 class User {
   static async authenticate(username, password) {
     const res = await UserCollection.findOne({ username })
-      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "budgets",
+        populate: { path: "expenses", select: "_id transaction date" },
+      })
       .populate({
         path: "expenses",
+        populate: { path: "budgetID", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     let user = res;
@@ -34,9 +38,13 @@ class User {
   static async get(username) {
     const res = await UserCollection.findOne({ username })
       .select("username totalAssets _id budgets expenses")
-      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "budgets",
+        populate: { path: "expenses", select: "_id title transaction date" },
+      })
       .populate({
         path: "expenses",
+        populate: { path: "budgetID", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
 
@@ -63,8 +71,11 @@ class User {
       },
       { new: true }
     )
-      .select(" totalAssets budgets")
-      .populate({ path: "budgets", populate: { path: "expenses" } });
+      .select("totalAssets budgets")
+      .populate({
+        path: "budgets",
+        populate: { path: "expenses", select: "_id title transaction date" },
+      });
     return res;
   }
 
@@ -79,9 +90,13 @@ class User {
       { new: true }
     )
       .select("totalAssets budgets expenses")
-      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "budgets",
+        populate: { path: "expenses", select: "_id title transaction date" },
+      })
       .populate({
         path: "expenses",
+        populate: { path: "budgetID", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     return res;
@@ -94,9 +109,13 @@ class User {
       { new: true }
     )
       .select("budgets expenses")
-      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "budgets",
+        populate: { path: "expenses", select: "_id title transaction date" },
+      })
       .populate({
         path: "expenses",
+        populate: { path: "budgetID", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     return res;
@@ -109,9 +128,13 @@ class User {
       { new: true }
     )
       .select("budgets expenses")
-      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "budgets",
+        populate: { path: "expenses", select: "_id title transaction date" },
+      })
       .populate({
         path: "expenses",
+        populate: { path: "budgetID", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     return res;

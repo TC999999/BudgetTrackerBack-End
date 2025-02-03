@@ -24,7 +24,7 @@ class Budget {
       budgetID,
       { $push: { expenses: expenseID }, $inc: { moneySpent: transaction } },
       { new: true }
-    ).populate("expenses");
+    ).populate({ path: "expenses", select: "_id title transaction date" });
     return res;
   }
 
@@ -33,7 +33,7 @@ class Budget {
       budgetID,
       { $pull: { expenses: expenseID }, $inc: { moneySpent: -transaction } },
       { new: true }
-    ).populate("expenses");
+    ).populate({ path: "expenses", select: "_id title transaction date" });
     return res;
   }
 }
