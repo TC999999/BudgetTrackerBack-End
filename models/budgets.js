@@ -11,6 +11,14 @@ class Budget {
     }
   }
 
+  static async deleteBudget(id) {
+    try {
+      await BudgetCollection.findByIdAndDelete(id);
+    } catch (err) {
+      throw new BadRequestError(err.message);
+    }
+  }
+
   static async addExpense(budgetID, expenseID, transaction) {
     const res = await BudgetCollection.findByIdAndUpdate(
       budgetID,

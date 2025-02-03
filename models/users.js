@@ -4,7 +4,12 @@ const { UserCollection } = require("../schemas/users");
 
 class User {
   static async authenticate(username, password) {
-    const res = await UserCollection.findOne({ username });
+    const res = await UserCollection.findOne({ username })
+      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "expenses",
+        options: { perDocumentLimit: 10, sort: { date: -1 } },
+      });
     let user = res;
     if (user && (await bcrypt.compare(password, user.password))) {
       delete user._doc.password;
@@ -49,14 +54,36 @@ class User {
     return res;
   }
 
-  static async addBudget(username, newBudgetID) {
+  static async addBudget(username, moneyAllocated, newBudgetID) {
     const res = await UserCollection.findOneAndUpdate(
       { username },
-      { $push: { budgets: newBudgetID } },
+      {
+        $push: { budgets: newBudgetID },
+        $inc: { totalAssets: -moneyAllocated },
+      },
       { new: true }
     )
-      .select("budgets")
+      .select(" totalAssets budgets")
       .populate({ path: "budgets", populate: { path: "expenses" } });
+    return res;
+  }
+
+  static async deleteBudget(username, addBackToAssets, budgetID, expenseIDs) {
+    const res = await UserCollection.findOneAndUpdate(
+      { username },
+      {
+        $inc: { totalAssets: addBackToAssets },
+        $pull: { budgets: budgetID },
+        $pullAll: { expenses: expenseIDs },
+      },
+      { new: true }
+    )
+      .select("totalAssets budgets expenses")
+      .populate({ path: "budgets", populate: { path: "expenses" } })
+      .populate({
+        path: "expenses",
+        options: { perDocumentLimit: 10, sort: { date: -1 } },
+      });
     return res;
   }
 

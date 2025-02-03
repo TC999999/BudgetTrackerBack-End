@@ -18,6 +18,14 @@ class Expenses {
       throw new BadRequestError(err.message);
     }
   }
+
+  static async deleteManyExpenses(expenseIDs) {
+    try {
+      await ExpenseCollection.deleteMany({ _id: expenseIDs });
+    } catch (err) {
+      throw new BadRequestError(err.message);
+    }
+  }
 }
 
 module.exports = Expenses;
