@@ -62,6 +62,20 @@ class User {
     return res;
   }
 
+  static async updateAssetsAndBudgets(username, addedAssets) {
+    const res = await UserCollection.findOneAndUpdate(
+      { username },
+      { $inc: { totalAssets: -addedAssets } },
+      { new: true }
+    )
+      .select("totalAssets budgets")
+      .populate({
+        path: "budgets",
+        populate: { path: "expenses", select: "_id title transaction date" },
+      });
+    return res;
+  }
+
   static async addBudget(username, moneyAllocated, newBudgetID) {
     const res = await UserCollection.findOneAndUpdate(
       { username },

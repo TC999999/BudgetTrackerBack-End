@@ -23,6 +23,23 @@ router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
+router.patch("/update/:id", ensureLoggedIn, async function (req, res, next) {
+  try {
+    const { id } = req.params;
+    const { title, addedMoney } = req.body;
+    await Budget.updateBudget(id, title, addedMoney);
+    const user = await User.updateAssetsAndBudgets(
+      res.locals.user.username,
+      addedMoney
+    );
+    return res
+      .status(200)
+      .json({ newUserBudgets: user.budgets, newAssets: user.totalAssets });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.delete("/delete/:id", ensureLoggedIn, async function (req, res, next) {
   try {
     const { id } = req.params;

@@ -11,6 +11,17 @@ class Budget {
     }
   }
 
+  static async updateBudget(budgetID, title, addedMoney) {
+    try {
+      await BudgetCollection.findByIdAndUpdate(budgetID, {
+        title,
+        $inc: { moneyAllocated: addedMoney },
+      }).populate({ path: "expenses", select: "_id title transaction date" });
+    } catch (err) {
+      throw new BadRequestError(err.message);
+    }
+  }
+
   static async deleteBudget(id) {
     try {
       await BudgetCollection.findByIdAndDelete(id);
