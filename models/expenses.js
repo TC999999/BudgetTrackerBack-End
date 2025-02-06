@@ -11,7 +11,10 @@ class Expenses {
       });
       return res;
     } catch (err) {
-      throw new BadRequestError(err.message);
+      let messages = Object.values(err.errors).map((e) => {
+        return e.message;
+      });
+      throw new BadRequestError(messages);
     }
   }
 

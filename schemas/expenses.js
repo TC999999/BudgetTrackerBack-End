@@ -2,11 +2,11 @@ const { Schema, model } = require("mongoose");
 
 const ExpenseSchema = new Schema(
   {
-    title: { type: String, required: true },
+    title: { type: String, required: [true, "Expense must have a title"] },
     budgetID: { type: Schema.Types.ObjectId, ref: "Budget" },
     transaction: {
       type: Number,
-      min: 1,
+      min: [1, "Transaction value must be $0.01 or greater"],
       required: true,
       default: 1,
       get: (v) => (v / 100).toFixed(2),
