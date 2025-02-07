@@ -1,4 +1,4 @@
-const { BadRequestError, UnauthorizedError } = require("../expressError");
+const { BadRequestError } = require("../expressError");
 const { ExpenseCollection } = require("../schemas/expenses");
 
 class Expenses {
@@ -12,8 +12,9 @@ class Expenses {
       return res;
     } catch (err) {
       let messages = Object.values(err.errors).map((e) => {
-        return e.message;
+        return [e.path, e.message];
       });
+      console.log(messages);
       throw new BadRequestError(messages);
     }
   }

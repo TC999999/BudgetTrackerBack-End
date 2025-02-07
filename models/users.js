@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
 const { NotFoundError, BadRequestError } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
+const { MongooseError } = require("mongoose");
+// const { MongoServerError } = require("mongodb");
 
 class User {
   static async authenticate(username, password) {
@@ -31,7 +33,16 @@ class User {
       });
       return res;
     } catch (err) {
-      throw new BadRequestError(err.message);
+      if (err.name === "ValidationError") {
+        let messages = Object.values(err.errors).map((e) => {
+          return [e.path, e.message];
+        });
+        console.log(messages);
+        throw new BadRequestError(messages);
+      } else if (err.name === "MongooseError") {
+        console.log(err.message);
+        throw new BadRequestError(err.message);
+      }
     }
   }
 

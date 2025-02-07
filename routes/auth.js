@@ -50,6 +50,7 @@ router.post("/register", async function (req, res, next) {
     delete newUser.password;
     return res.status(201).json({ newUser, token });
   } catch (err) {
+    console.log(err);
     return next(err);
   }
 });

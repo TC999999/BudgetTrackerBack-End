@@ -14,15 +14,15 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: [true, "Password is empty"],
-      minLength: [5, "password must be more than 5 characters"],
-      maxLength: [20, "password must be less than 20 characters"],
+      minLength: [5, "Password must be more than 5 characters"],
+      maxLength: [20, "Password must be less than 20 characters"],
     },
     totalAssets: {
       type: Number,
       required: true,
       default: 0,
       min: 0,
-      max: 999999999999.99,
+      max: [99999999999999, "Maximum Total Asset Value Exceeded"],
       get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
     },
