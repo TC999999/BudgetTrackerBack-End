@@ -7,15 +7,15 @@ const UserSchema = new Schema(
     username: {
       type: String,
       required: [true, "Username is empty"],
-      minLength: [5, "Username must be more than 5 characters"],
-      maxLength: [30, "Username must be less than 30 characters"],
-      unique: [true, "Username already exists"],
+      minLength: [5, "Username must be greater than or equal to 5 characters"],
+      maxLength: [30, "Username must be less than or equal to 30 characters"],
+      unique: [true, "Username already exists! Please choose a different one."],
     },
     password: {
       type: String,
       required: [true, "Password is empty"],
-      minLength: [5, "Password must be more than 5 characters"],
-      maxLength: [20, "Password must be less than 20 characters"],
+      minLength: [8, "Password must be greater than or equal to 8 characters"],
+      maxLength: [20, "Password must be less than or equal to 20 characters"],
     },
     totalAssets: {
       type: Number,

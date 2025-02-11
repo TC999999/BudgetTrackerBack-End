@@ -14,7 +14,6 @@ class Expenses {
       let messages = Object.values(err.errors).map((e) => {
         return [e.path, e.message];
       });
-      console.log(messages);
       throw new BadRequestError(messages);
     }
   }

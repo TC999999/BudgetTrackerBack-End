@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const { NotFoundError, BadRequestError } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
 const { MongooseError } = require("mongoose");
+const { options } = require("../app");
 // const { MongoServerError } = require("mongodb");
 
 class User {
@@ -34,13 +35,11 @@ class User {
       return res;
     } catch (err) {
       if (err.name === "ValidationError") {
-        let messages = Object.values(err.errors).map((e) => {
-          return [e.path, e.message];
-        });
-        console.log(messages);
-        throw new BadRequestError(messages);
+        // let m = Object.values(err.errors).map((e) => {
+        //   return [e.path, e.message];
+        // });
+        throw new BadRequestError(err.errors);
       } else if (err.name === "MongooseError") {
-        console.log(err.message);
         throw new BadRequestError(err.message);
       }
     }
@@ -51,7 +50,11 @@ class User {
       .select("username totalAssets _id budgets expenses")
       .populate({
         path: "budgets",
-        populate: { path: "expenses", select: "_id title transaction date" },
+        populate: {
+          path: "expenses",
+          select: "_id title transaction date",
+          options: { sort: { date: -1 } },
+        },
       })
       .populate({
         path: "expenses",
@@ -82,7 +85,11 @@ class User {
       .select("totalAssets budgets")
       .populate({
         path: "budgets",
-        populate: { path: "expenses", select: "_id title transaction date" },
+        populate: {
+          path: "expenses",
+          select: "_id title transaction date",
+          options: { sort: { date: -1 } },
+        },
       });
     return res;
   }
@@ -99,7 +106,11 @@ class User {
       .select("totalAssets budgets")
       .populate({
         path: "budgets",
-        populate: { path: "expenses", select: "_id title transaction date" },
+        populate: {
+          path: "expenses",
+          select: "_id title transaction date",
+          options: { sort: { date: -1 } },
+        },
       });
     return res;
   }
@@ -117,7 +128,11 @@ class User {
       .select("totalAssets budgets expenses")
       .populate({
         path: "budgets",
-        populate: { path: "expenses", select: "_id title transaction date" },
+        populate: {
+          path: "expenses",
+          select: "_id title transaction date",
+          options: { sort: { date: -1 } },
+        },
       })
       .populate({
         path: "expenses",
@@ -136,7 +151,11 @@ class User {
       .select("budgets expenses")
       .populate({
         path: "budgets",
-        populate: { path: "expenses", select: "_id title transaction date" },
+        populate: {
+          path: "expenses",
+          select: "_id title transaction date",
+          options: { sort: { date: -1 } },
+        },
       })
       .populate({
         path: "expenses",
@@ -155,7 +174,11 @@ class User {
       .select("budgets expenses")
       .populate({
         path: "budgets",
-        populate: { path: "expenses", select: "_id title transaction date" },
+        populate: {
+          path: "expenses",
+          select: "_id title transaction date",
+          options: { sort: { date: -1 } },
+        },
       })
       .populate({
         path: "expenses",

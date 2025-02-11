@@ -16,7 +16,11 @@ class Budget {
       await BudgetCollection.findByIdAndUpdate(budgetID, {
         title,
         $inc: { moneyAllocated: addedMoney },
-      }).populate({ path: "expenses", select: "_id title transaction date" });
+      }).populate({
+        path: "expenses",
+        select: "_id title transaction date",
+        sort: { date: -1 },
+      });
     } catch (err) {
       throw new BadRequestError(err.message);
     }
@@ -35,7 +39,11 @@ class Budget {
       budgetID,
       { $push: { expenses: expenseID }, $inc: { moneySpent: transaction } },
       { new: true }
-    ).populate({ path: "expenses", select: "_id title transaction date" });
+    ).populate({
+      path: "expenses",
+      select: "_id title transaction date",
+      sort: { date: -1 },
+    });
     return res;
   }
 
@@ -44,7 +52,11 @@ class Budget {
       budgetID,
       { $pull: { expenses: expenseID }, $inc: { moneySpent: -transaction } },
       { new: true }
-    ).populate({ path: "expenses", select: "_id title transaction date" });
+    ).populate({
+      path: "expenses",
+      select: "_id title transaction date",
+      sort: { date: -1 },
+    });
     return res;
   }
 }
