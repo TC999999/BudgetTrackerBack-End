@@ -8,8 +8,13 @@ const router = express.Router();
 
 router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
   try {
-    const { title, transaction, budgetID } = req.body;
-    const expense = await Expense.addExpense(title, transaction, budgetID);
+    const { title, transaction, date, budgetID } = req.body;
+    const expense = await Expense.addExpense(
+      title,
+      transaction,
+      date,
+      budgetID
+    );
     await Budget.addExpense(budgetID, expense._id, transaction);
     const user = await User.addExpense(res.locals.user.username, expense._id);
     return res

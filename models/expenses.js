@@ -2,11 +2,12 @@ const { BadRequestError } = require("../expressError");
 const { ExpenseCollection } = require("../schemas/expenses");
 
 class Expenses {
-  static async addExpense(title, transaction, budgetID) {
+  static async addExpense(title, transaction, date, budgetID) {
     try {
       const res = await ExpenseCollection.create({
         title,
         transaction,
+        date,
         budgetID,
       });
       return res;
