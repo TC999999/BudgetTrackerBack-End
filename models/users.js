@@ -1,9 +1,6 @@
 const bcrypt = require("bcrypt");
 const { NotFoundError, BadRequestError } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
-const { MongooseError } = require("mongoose");
-const { options } = require("../app");
-// const { MongoServerError } = require("mongodb");
 
 class User {
   static async authenticate(username, password) {
