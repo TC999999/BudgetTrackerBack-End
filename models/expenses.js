@@ -8,7 +8,7 @@ class Expenses {
         title,
         transaction,
         date,
-        budgetID,
+        budget: budgetID,
       });
       return res;
     } catch (err) {

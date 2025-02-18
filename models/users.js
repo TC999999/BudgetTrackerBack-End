@@ -7,11 +7,12 @@ class User {
     const res = await UserCollection.findOne({ username })
       .populate({
         path: "budgets",
+        select: "_id title moneyAllocated moneySpent expenses",
         populate: { path: "expenses", select: "_id transaction date" },
       })
       .populate({
-        path: "expenses",
-        populate: { path: "budgetID", select: "title" },
+        path: "recentExpenses",
+        populate: { path: "budget", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     let user = res;
@@ -32,9 +33,6 @@ class User {
       return res;
     } catch (err) {
       if (err.name === "ValidationError") {
-        // let m = Object.values(err.errors).map((e) => {
-        //   return [e.path, e.message];
-        // });
         throw new BadRequestError(err.errors);
       } else if (err.name === "MongooseError") {
         throw new BadRequestError(err.message);
@@ -44,9 +42,10 @@ class User {
 
   static async get(username) {
     const res = await UserCollection.findOne({ username })
-      .select("username totalAssets _id budgets expenses")
+      .select("username totalAssets _id budgets recentExpenses")
       .populate({
         path: "budgets",
+        select: "_id title moneyAllocated moneySpent expenses",
         populate: {
           path: "expenses",
           select: "_id title transaction date",
@@ -54,8 +53,8 @@ class User {
         },
       })
       .populate({
-        path: "expenses",
-        populate: { path: "budgetID", select: "title" },
+        path: "recentExpenses",
+        populate: { path: "budget", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
 
@@ -82,6 +81,7 @@ class User {
       .select("totalAssets budgets")
       .populate({
         path: "budgets",
+        select: "_id title moneyAllocated moneySpent expenses",
         populate: {
           path: "expenses",
           select: "_id title transaction date",
@@ -103,6 +103,7 @@ class User {
       .select("totalAssets budgets")
       .populate({
         path: "budgets",
+        select: "_id title moneyAllocated moneySpent expenses",
         populate: {
           path: "expenses",
           select: "_id title transaction date",
@@ -118,13 +119,14 @@ class User {
       {
         $inc: { totalAssets: addBackToAssets },
         $pull: { budgets: budgetID },
-        $pullAll: { expenses: expenseIDs },
+        $pullAll: { recentExpenses: expenseIDs },
       },
       { new: true }
     )
-      .select("totalAssets budgets expenses")
+      .select("totalAssets budgets recentExpenses")
       .populate({
         path: "budgets",
+        select: "_id title moneyAllocated moneySpent expenses",
         populate: {
           path: "expenses",
           select: "_id title transaction date",
@@ -132,8 +134,8 @@ class User {
         },
       })
       .populate({
-        path: "expenses",
-        populate: { path: "budgetID", select: "title" },
+        path: "recentExpenses",
+        populate: { path: "budget", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     return res;
@@ -145,9 +147,10 @@ class User {
       { $push: { expenses: newExpenseID } },
       { new: true }
     )
-      .select("budgets expenses")
+      .select("budgets recentExpenses")
       .populate({
         path: "budgets",
+        select: "_id title moneyAllocated moneySpent expenses",
         populate: {
           path: "expenses",
           select: "_id title transaction date",
@@ -155,8 +158,8 @@ class User {
         },
       })
       .populate({
-        path: "expenses",
-        populate: { path: "budgetID", select: "title" },
+        path: "recentExpenses",
+        populate: { path: "budget", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     return res;
@@ -168,9 +171,10 @@ class User {
       { $pull: { expenses: expenseID } },
       { new: true }
     )
-      .select("budgets expenses")
+      .select("budgets recentExpenses")
       .populate({
         path: "budgets",
+        select: "_id title moneyAllocated moneySpent expenses",
         populate: {
           path: "expenses",
           select: "_id title transaction date",
@@ -178,8 +182,8 @@ class User {
         },
       })
       .populate({
-        path: "expenses",
-        populate: { path: "budgetID", select: "title" },
+        path: "recentExpenses",
+        populate: { path: "budget", select: "title" },
         options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     return res;

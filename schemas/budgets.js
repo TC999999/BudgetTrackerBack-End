@@ -6,6 +6,7 @@ const BudgetSchema = new Schema(
       type: String,
       required: [true, "This budget is missing a title!"],
     },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
     moneyAllocated: {
       type: Number,
       required: [

@@ -9,7 +9,11 @@ const router = express.Router();
 router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
   try {
     const { title, moneyAllocated } = req.body;
-    const budget = await Budget.addBudget(title, moneyAllocated);
+    const budget = await Budget.addBudget(
+      title,
+      moneyAllocated,
+      res.locals.user.id
+    );
     const user = await User.addBudget(
       res.locals.user.username,
       moneyAllocated,
