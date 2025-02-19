@@ -15,6 +15,17 @@ class Budget {
     }
   }
 
+  static async getNewUserBudgets(user) {
+    const res = await BudgetCollection.find({ user })
+      .select("_id title moneyAllocated moneySpent expenses")
+      .populate({
+        path: "expenses",
+        select: "_id title transaction date",
+        options: { sort: { date: -1 } },
+      });
+    return res;
+  }
+
   static async updateBudget(budgetID, title, addedMoney) {
     try {
       await BudgetCollection.findByIdAndUpdate(budgetID, {

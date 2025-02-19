@@ -1,6 +1,7 @@
 const express = require("express");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/users");
+const Expenses = require("../models/expenses");
 const { createToken } = require("../helpers/token");
 const { ensureLoggedIn } = require("../middleware/auth");
 
@@ -20,6 +21,7 @@ router.post("/login", async function (req, res, next) {
       );
     }
     const user = await User.authenticate(username, password);
+    const recentExpenses = await Expenses.getUserRecentExpenses(user._id);
     const token = createToken(user);
     res
       .cookie("refresh_token", token, {
@@ -29,7 +31,7 @@ router.post("/login", async function (req, res, next) {
         sameSite: true,
       })
       .status(200);
-    return res.status(200).json(user);
+    return res.status(200).json({ user, recentExpenses });
   } catch (err) {
     return next(err);
   }
@@ -38,6 +40,7 @@ router.post("/login", async function (req, res, next) {
 router.post("/register", async function (req, res, next) {
   try {
     const newUser = await User.register(req.body);
+    const recentExpenses = await Expenses.getUserRecentExpenses(newUser._id);
     const token = createToken(newUser);
     res
       .cookie("refresh_token", token, {
@@ -48,7 +51,7 @@ router.post("/register", async function (req, res, next) {
       })
       .status(201);
     delete newUser.password;
-    return res.status(201).json({ newUser, token });
+    return res.status(201).json({ newUser, recentExpenses });
   } catch (err) {
     console.log(err);
     return next(err);

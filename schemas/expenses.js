@@ -4,6 +4,7 @@ const ExpenseSchema = new Schema(
   {
     title: { type: String, required: [true, "Expense must have a title"] },
     budget: { type: Schema.Types.ObjectId, ref: "Budget" },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
     transaction: {
       type: Number,
       min: [1, "Transaction value must be $0.01 or greater"],

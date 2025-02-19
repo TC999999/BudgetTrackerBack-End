@@ -53,11 +53,13 @@ router.delete("/delete/:id", ensureLoggedIn, async function (req, res, next) {
     const user = await User.deleteBudget(
       res.locals.user.username,
       addBackToAssets,
-      id,
-      expenses
+      id
+    );
+    const recentExpenses = await Expense.getUserRecentExpenses(
+      res.locals.user.id
     );
 
-    return res.status(200).json({ user });
+    return res.status(200).json({ user, recentExpenses });
   } catch (err) {
     return next(err);
   }

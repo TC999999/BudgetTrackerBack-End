@@ -1,33 +1,31 @@
 const bcrypt = require("bcrypt");
 const { NotFoundError, BadRequestError } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
+const Expenses = require("./expenses");
 
 class User {
   static async authenticate(username, password) {
-    const res = await UserCollection.findOne({ username })
-      .populate({
-        path: "budgets",
-        select: "_id title moneyAllocated moneySpent expenses",
-        populate: { path: "expenses", select: "_id transaction date" },
-      })
-      .populate({
-        path: "recentExpenses",
-        populate: { path: "budget", select: "title" },
-        options: { perDocumentLimit: 10, sort: { date: -1 } },
-      });
+    const res = await UserCollection.findOne({ username }).populate({
+      path: "budgets",
+      select: "_id title moneyAllocated moneySpent expenses",
+      populate: { path: "expenses", select: "_id transaction date" },
+    });
+
     let user = res;
     if (user && (await bcrypt.compare(password, user.password))) {
       delete user._doc.password;
+
       return user;
     }
     throw new NotFoundError("Invalid username/password");
   }
 
-  static async register({ username, password, totalAssets }) {
+  static async register({ username, password, email, totalAssets }) {
     try {
       const res = await UserCollection.create({
         username,
         password,
+        email,
         totalAssets,
       });
       return res;
@@ -42,7 +40,7 @@ class User {
 
   static async get(username) {
     const res = await UserCollection.findOne({ username })
-      .select("username totalAssets _id budgets recentExpenses")
+      .select("username totalAssets _id budgets")
       .populate({
         path: "budgets",
         select: "_id title moneyAllocated moneySpent expenses",
@@ -51,15 +49,11 @@ class User {
           select: "_id title transaction date",
           options: { sort: { date: -1 } },
         },
-      })
-      .populate({
-        path: "recentExpenses",
-        populate: { path: "budget", select: "title" },
-        options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
 
     let user = res;
     if (!user) throw new NotFoundError(`User of ${username} does not exist`);
+
     return user;
   }
 
@@ -119,11 +113,10 @@ class User {
       {
         $inc: { totalAssets: addBackToAssets },
         $pull: { budgets: budgetID },
-        $pullAll: { recentExpenses: expenseIDs },
       },
       { new: true }
     )
-      .select("totalAssets budgets recentExpenses")
+      .select("totalAssets budgets")
       .populate({
         path: "budgets",
         select: "_id title moneyAllocated moneySpent expenses",
@@ -132,62 +125,57 @@ class User {
           select: "_id title transaction date",
           options: { sort: { date: -1 } },
         },
-      })
-      .populate({
-        path: "recentExpenses",
-        populate: { path: "budget", select: "title" },
-        options: { perDocumentLimit: 10, sort: { date: -1 } },
       });
     return res;
   }
 
-  static async addExpense(username, newExpenseID) {
-    const res = await UserCollection.findOneAndUpdate(
-      { username },
-      { $push: { expenses: newExpenseID } },
-      { new: true }
-    )
-      .select("budgets recentExpenses")
-      .populate({
-        path: "budgets",
-        select: "_id title moneyAllocated moneySpent expenses",
-        populate: {
-          path: "expenses",
-          select: "_id title transaction date",
-          options: { sort: { date: -1 } },
-        },
-      })
-      .populate({
-        path: "recentExpenses",
-        populate: { path: "budget", select: "title" },
-        options: { perDocumentLimit: 10, sort: { date: -1 } },
-      });
-    return res;
-  }
+  // static async addExpense(username, newExpenseID) {
+  //   const res = await UserCollection.findOneAndUpdate(
+  //     { username },
+  //     { $push: { recentExpenses: newExpenseID } },
+  //     { new: true }
+  //   )
+  //     .select("budgets recentExpenses")
+  //     .populate({
+  //       path: "budgets",
+  //       select: "_id title moneyAllocated moneySpent expenses",
+  //       populate: {
+  //         path: "expenses",
+  //         select: "_id title transaction date",
+  //         options: { sort: { date: -1 } },
+  //       },
+  //     })
+  //     .populate({
+  //       path: "recentExpenses",
+  //       populate: { path: "budget", select: "title" },
+  //       options: { perDocumentLimit: 10, sort: { date: -1 } },
+  //     });
+  //   return res;
+  // }
 
-  static async removeExpense(username, expenseID) {
-    const res = await UserCollection.findOneAndUpdate(
-      { username },
-      { $pull: { expenses: expenseID } },
-      { new: true }
-    )
-      .select("budgets recentExpenses")
-      .populate({
-        path: "budgets",
-        select: "_id title moneyAllocated moneySpent expenses",
-        populate: {
-          path: "expenses",
-          select: "_id title transaction date",
-          options: { sort: { date: -1 } },
-        },
-      })
-      .populate({
-        path: "recentExpenses",
-        populate: { path: "budget", select: "title" },
-        options: { perDocumentLimit: 10, sort: { date: -1 } },
-      });
-    return res;
-  }
+  // static async removeExpense(username, expenseID) {
+  //   const res = await UserCollection.findOneAndUpdate(
+  //     { username },
+  //     { $pull: { recentExpenses: expenseID } },
+  //     { new: true }
+  //   )
+  //     .select("budgets recentExpenses")
+  //     .populate({
+  //       path: "budgets",
+  //       select: "_id title moneyAllocated moneySpent expenses",
+  //       populate: {
+  //         path: "expenses",
+  //         select: "_id title transaction date",
+  //         options: { sort: { date: -1 } },
+  //       },
+  //     })
+  //     .populate({
+  //       path: "recentExpenses",
+  //       populate: { path: "budget", select: "title" },
+  //       options: { perDocumentLimit: 10, sort: { date: -1 } },
+  //     });
+  //   return res;
+  // }
 }
 
 module.exports = User;

@@ -2,13 +2,14 @@ const { BadRequestError } = require("../expressError");
 const { ExpenseCollection } = require("../schemas/expenses");
 
 class Expenses {
-  static async addExpense(title, transaction, date, budgetID) {
+  static async addExpense(title, transaction, date, budget, user) {
     try {
       const res = await ExpenseCollection.create({
         title,
         transaction,
         date,
-        budget: budgetID,
+        budget,
+        user,
       });
       return res;
     } catch (err) {
@@ -16,6 +17,19 @@ class Expenses {
         return [e.path, e.message];
       });
       throw new BadRequestError(messages);
+    }
+  }
+
+  static async getUserRecentExpenses(user) {
+    try {
+      const res = await ExpenseCollection.find({ user })
+        .select("_id title budget transaction date")
+        .limit(10)
+        .sort({ date: -1 })
+        .populate({ path: "budget", select: "title" });
+      return res;
+    } catch (err) {
+      throw new BadRequestError(err.message);
     }
   }
 
