@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const { NotFoundError, BadRequestError } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
-const Expenses = require("./expenses");
 
 class User {
   static async authenticate(username, password) {
@@ -14,7 +13,6 @@ class User {
     let user = res;
     if (user && (await bcrypt.compare(password, user.password))) {
       delete user._doc.password;
-
       return user;
     }
     throw new NotFoundError("Invalid username/password");
@@ -107,7 +105,7 @@ class User {
     return res;
   }
 
-  static async deleteBudget(username, addBackToAssets, budgetID, expenseIDs) {
+  static async deleteBudget(username, addBackToAssets, budgetID) {
     const res = await UserCollection.findOneAndUpdate(
       { username },
       {
@@ -128,54 +126,6 @@ class User {
       });
     return res;
   }
-
-  // static async addExpense(username, newExpenseID) {
-  //   const res = await UserCollection.findOneAndUpdate(
-  //     { username },
-  //     { $push: { recentExpenses: newExpenseID } },
-  //     { new: true }
-  //   )
-  //     .select("budgets recentExpenses")
-  //     .populate({
-  //       path: "budgets",
-  //       select: "_id title moneyAllocated moneySpent expenses",
-  //       populate: {
-  //         path: "expenses",
-  //         select: "_id title transaction date",
-  //         options: { sort: { date: -1 } },
-  //       },
-  //     })
-  //     .populate({
-  //       path: "recentExpenses",
-  //       populate: { path: "budget", select: "title" },
-  //       options: { perDocumentLimit: 10, sort: { date: -1 } },
-  //     });
-  //   return res;
-  // }
-
-  // static async removeExpense(username, expenseID) {
-  //   const res = await UserCollection.findOneAndUpdate(
-  //     { username },
-  //     { $pull: { recentExpenses: expenseID } },
-  //     { new: true }
-  //   )
-  //     .select("budgets recentExpenses")
-  //     .populate({
-  //       path: "budgets",
-  //       select: "_id title moneyAllocated moneySpent expenses",
-  //       populate: {
-  //         path: "expenses",
-  //         select: "_id title transaction date",
-  //         options: { sort: { date: -1 } },
-  //       },
-  //     })
-  //     .populate({
-  //       path: "recentExpenses",
-  //       populate: { path: "budget", select: "title" },
-  //       options: { perDocumentLimit: 10, sort: { date: -1 } },
-  //     });
-  //   return res;
-  // }
 }
 
 module.exports = User;
