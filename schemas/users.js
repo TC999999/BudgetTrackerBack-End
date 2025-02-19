@@ -28,7 +28,6 @@ const UserSchema = new Schema(
       set: (v) => v * 100,
     },
     budgets: [{ type: Schema.Types.ObjectId, ref: "Budget" }],
-    // recentExpenses: [{ type: Schema.Types.ObjectId, ref: "Expense" }],
   },
   { versionKey: false, toJSON: { getters: true }, id: false }
 );
