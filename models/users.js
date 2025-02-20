@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
 const { NotFoundError, BadRequestError } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
+const { OTPCollection } = require("../schemas/OTP");
+const { makeOneTimeCode } = require("../helpers/makeOneTimeCode");
 
 class User {
   static async authenticate(username, password) {
@@ -53,6 +55,24 @@ class User {
     if (!user) throw new NotFoundError(`User of ${username} does not exist`);
 
     return user;
+  }
+
+  static async getUserTwoFactor(username, email) {
+    const res = await UserCollection.findOne({ username, email }).select(
+      "username email"
+    );
+    if (!res) throw new NotFoundError(`User of ${username} does not exist`);
+    return res;
+  }
+
+  static async saveUserTwoFactor(username, email) {
+    let otp = makeOneTimeCode();
+    let res = await OTPCollection.create({
+      username,
+      email,
+      hashedOneTimeCode: otp,
+    });
+    return res;
   }
 
   static async updateAssets(username, addedAssets) {

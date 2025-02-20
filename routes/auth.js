@@ -57,6 +57,17 @@ router.post("/register", async function (req, res, next) {
   }
 });
 
+router.post("/confirmUserInfo", async function (req, res, next) {
+  try {
+    const { username, email } = req.body;
+    await User.getUserTwoFactor(username, email);
+    const otp = await User.saveUserTwoFactor(username, email);
+    return res.status(200).json({ otp });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.get("/logOut", ensureLoggedIn, async function (req, res, next) {
   try {
     res.clearCookie("refresh_token").status(200);
