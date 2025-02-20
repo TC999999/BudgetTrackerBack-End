@@ -60,10 +60,11 @@ router.post("/register", async function (req, res, next) {
 router.post("/confirmUserInfo", async function (req, res, next) {
   try {
     const { username, email } = req.body;
-    await User.getUserTwoFactor(username, email);
-    const otp = await User.saveUserTwoFactor(username, email);
-    return res.status(200).json({ otp });
+    const userExists = await User.getUserTwoFactor(username, email);
+    await User.saveUserTwoFactor(username, email);
+    return res.status(200).json(userExists);
   } catch (err) {
+    console.log(err.message);
     return next(err);
   }
 });

@@ -58,21 +58,29 @@ class User {
   }
 
   static async getUserTwoFactor(username, email) {
-    const res = await UserCollection.findOne({ username, email }).select(
-      "username email"
-    );
-    if (!res) throw new NotFoundError(`User of ${username} does not exist`);
+    const res = await UserCollection.findOne({
+      username,
+      email,
+    }).select("-_id username email");
+    if (!res)
+      throw new NotFoundError(
+        `User of ${username} with email of ${email} does not exist`
+      );
     return res;
   }
 
   static async saveUserTwoFactor(username, email) {
-    let otp = makeOneTimeCode();
-    let res = await OTPCollection.create({
-      username,
-      email,
-      hashedOneTimeCode: otp,
-    });
-    return res;
+    try {
+      let otp = makeOneTimeCode();
+      let res = await OTPCollection.create({
+        username,
+        email,
+        hashedOneTimeCode: otp,
+      });
+      return res;
+    } catch (err) {
+      if (err.name === "MongooseError") throw new BadRequestError(err.message);
+    }
   }
 
   static async updateAssets(username, addedAssets) {
