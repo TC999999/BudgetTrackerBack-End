@@ -53,7 +53,6 @@ router.post("/register", async function (req, res, next) {
     delete newUser.password;
     return res.status(201).json({ newUser, recentExpenses });
   } catch (err) {
-    console.log(err);
     return next(err);
   }
 });

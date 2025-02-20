@@ -21,7 +21,6 @@ router.get("/get/currentuser", ensureLoggedIn, async function (req, res, next) {
     let recentExpenses = await Expenses.getUserRecentExpenses(user._id);
     return res.status(200).json({ user, recentExpenses });
   } catch (err) {
-    console.log(err);
     return next(err);
   }
 });
