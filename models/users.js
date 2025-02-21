@@ -3,6 +3,7 @@ const { NotFoundError, BadRequestError } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
 const { OTPCollection } = require("../schemas/OTP");
 const { makeOneTimeCode } = require("../helpers/makeOneTimeCode");
+const { sendResetEmail } = require("../helpers/sendEmail");
 
 class User {
   static async authenticate(username, password) {
@@ -66,20 +67,37 @@ class User {
       throw new NotFoundError(
         `User of ${username} with email of ${email} does not exist`
       );
+
+    let otp = makeOneTimeCode();
+    await OTPCollection.create({
+      username,
+      email,
+      hashedOneTimeCode: otp,
+    });
+    await sendResetEmail(email, otp);
     return res;
   }
 
-  static async saveUserTwoFactor(username, email) {
+  static async confirmUserCode(username, email, code) {
     try {
-      let otp = makeOneTimeCode();
-      let res = await OTPCollection.create({
-        username,
-        email,
-        hashedOneTimeCode: otp,
-      });
-      return res;
+      let codeConfirm = await OTPCollection.findOne({ username, email });
+      if (
+        codeConfirm &&
+        (await bcrypt.compare(code, codeConfirm.hashedOneTimeCode))
+      ) {
+        await OTPCollection.findOneAndDelete({ username, email });
+        return codeConfirm;
+      }
+      throw new NotFoundError("Inputted Code is Incorrect");
     } catch (err) {
-      if (err.name === "MongooseError") throw new BadRequestError(err.message);
+      throw new NotFoundError(err.message);
+    }
+  }
+
+  static async resetUserPassword(username, email, newPassword) {
+    try {
+    } catch (err) {
+      throw new NotFoundError(err.message);
     }
   }
 

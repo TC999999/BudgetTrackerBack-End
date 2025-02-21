@@ -15,7 +15,7 @@ const OTPSchema = new Schema(
       unique: [true, "Email has code set already"],
     },
     hashedOneTimeCode: { type: String, required: true },
-    expiresAt: { type: Date, expires: 120, default: Date.now() },
+    createdAt: { type: Date, expires: "2m", default: Date.now },
   },
   { versionKey: false, id: false }
 );

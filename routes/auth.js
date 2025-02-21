@@ -61,10 +61,18 @@ router.post("/confirmUserInfo", async function (req, res, next) {
   try {
     const { username, email } = req.body;
     const userExists = await User.getUserTwoFactor(username, email);
-    await User.saveUserTwoFactor(username, email);
     return res.status(200).json(userExists);
   } catch (err) {
-    console.log(err.message);
+    return next(err);
+  }
+});
+
+router.delete("/confirmOTP", async function (req, res, next) {
+  try {
+    const { username, email, code } = req.body;
+    let confirmCode = await User.confirmUserCode(username, email, code);
+    return res.status(200).json(confirmCode);
+  } catch (err) {
     return next(err);
   }
 });
