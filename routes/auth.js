@@ -67,11 +67,21 @@ router.post("/confirmUserInfo", async function (req, res, next) {
   }
 });
 
-router.delete("/confirmOTP", async function (req, res, next) {
+router.post("/confirmOTP", async function (req, res, next) {
   try {
     const { username, email, code } = req.body;
-    let confirmCode = await User.confirmUserCode(username, email, code);
-    return res.status(200).json(confirmCode);
+    await User.confirmUserCode(username, email, code);
+    return res.status(200).json({ message: "verification code confirmed!" });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.patch("/resetPassword", async function (req, res, next) {
+  try {
+    const { username, email, newPassword } = req.body;
+    await User.resetUserPassword(username, email, newPassword);
+    return res.status(200).json({ message: "password reset success" });
   } catch (err) {
     return next(err);
   }

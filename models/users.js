@@ -80,24 +80,43 @@ class User {
 
   static async confirmUserCode(username, email, code) {
     try {
-      let codeConfirm = await OTPCollection.findOne({ username, email });
+      let codeConfirm = await OTPCollection.findOne({ username, email }).select(
+        "-_id hashedOneTimeCode"
+      );
       if (
         codeConfirm &&
         (await bcrypt.compare(code, codeConfirm.hashedOneTimeCode))
       ) {
-        await OTPCollection.findOneAndDelete({ username, email });
-        return codeConfirm;
+        await OTPCollection.findOneAndUpdate(
+          { username, email },
+          { codeConfirmed: true }
+        );
+      } else {
+        throw new NotFoundError("Inputted Code is Incorrect");
       }
-      throw new NotFoundError("Inputted Code is Incorrect");
     } catch (err) {
       throw new NotFoundError(err.message);
     }
   }
 
   static async resetUserPassword(username, email, newPassword) {
-    try {
-    } catch (err) {
-      throw new NotFoundError(err.message);
+    let confirmUser = await OTPCollection.findOne({ username, email });
+    if (confirmUser && confirmUser.codeConfirmed) {
+      await UserCollection.findOneAndUpdate(
+        { username, email },
+        { $set: { password: newPassword } }
+      );
+      await OTPCollection.findOneAndDelete({ username, email });
+    } else if (confirmUser && !confirmUser.codeConfirmed) {
+      throw new BadRequestError(
+        `User ${username} has not confirmed verification code`
+      );
+    } else if (!confirmUser) {
+      throw new NotFoundError(
+        `Either user ${username} has not requested password reset, or password reset time limit expired`
+      );
+    } else {
+      throw new BadRequestError();
     }
   }
 

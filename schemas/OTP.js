@@ -15,6 +15,7 @@ const OTPSchema = new Schema(
       unique: [true, "Email has code set already"],
     },
     hashedOneTimeCode: { type: String, required: true },
+    codeConfirmed: { type: Boolean, required: true, default: false },
     createdAt: { type: Date, expires: "2m", default: Date.now },
   },
   { versionKey: false, id: false }
