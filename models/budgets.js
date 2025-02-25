@@ -1,4 +1,4 @@
-const { BadRequestError, UnauthorizedError } = require("../expressError");
+const { BadRequestError } = require("../expressError");
 const { BudgetCollection } = require("../schemas/budgets");
 
 class Budget {

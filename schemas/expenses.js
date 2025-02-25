@@ -1,9 +1,48 @@
 const { Schema, model } = require("mongoose");
 
+function validCharacters(title) {
+  let exp = /^[\w ]+$/i;
+  return exp.test(title);
+}
+
+function validTrim(title) {
+  let exp = /^\s+|\s+$/g;
+  return !exp.test(title);
+}
+
+const expenseValidators = [
+  {
+    validator: validCharacters,
+    message:
+      "Expense title contains invalid characters. Only letters or numbers are accepted.",
+  },
+  {
+    validator: validTrim,
+    message: "Expense title may not have spaces at the beginning or end.",
+  },
+];
+
 const ExpenseSchema = new Schema(
   {
-    title: { type: String, required: [true, "Expense must have a title"] },
-    budget: { type: Schema.Types.ObjectId, ref: "Budget" },
+    title: {
+      type: String,
+      required: [true, "Expense must have a title"],
+      minLength: [
+        3,
+        "Expense title must be greater than or equal to 3 characters.",
+      ],
+      maxLength: [
+        20,
+        "Expense title must be less than or equal to 20 characters.",
+      ],
+      validate: expenseValidators,
+    },
+    budget: {
+      type: Schema.Types.ObjectId,
+      ref: "Budget",
+      required: [true, "Must have a budget id for this expense."],
+    },
+
     user: { type: Schema.Types.ObjectId, ref: "User" },
     transaction: {
       type: Number,

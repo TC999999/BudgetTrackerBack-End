@@ -1,14 +1,28 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config");
+const { isEmail } = require("validator");
+
+function validEmail(email) {
+  return isEmail(email);
+}
+
+const emailValidator = {
+  validator: validEmail,
+  message: "Invalid Email Address",
+};
 
 const UserSchema = new Schema(
   {
     username: {
       type: String,
-      required: [true, "Username is empty"],
-      minLength: [6, "Username must be greater than or equal to 6 characters"],
-      maxLength: [30, "Username must be less than or equal to 30 characters"],
+      required: [true, "Username is empty."],
+      minLength: [6, "Username must be greater than or equal to 6 characters."],
+      maxLength: [30, "Username must be less than or equal to 30 characters."],
+      validate: [
+        /^[\w]+$/i,
+        "Username contains invalid characters. Only letters or numbers are accepted.",
+      ],
       unique: [true, "Username already exists! Please choose a different one."],
     },
     password: {
@@ -19,8 +33,17 @@ const UserSchema = new Schema(
         "Password must be greater than or equal to 16 characters",
       ],
       maxLength: [20, "Password must be less than or equal to 20 characters"],
+      validate: [/^[\w!?&$#%]+$/i, "Password contains invalid characters."],
     },
-    email: { type: String, required: [true, "Email is empty"] },
+    email: {
+      type: String,
+      required: [true, "Email is empty"],
+      unique: [
+        true,
+        "Email already linked to another account. Please use a different one.",
+      ],
+      validate: emailValidator,
+    },
     totalAssets: {
       type: Number,
       required: true,

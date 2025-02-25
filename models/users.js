@@ -79,23 +79,24 @@ class User {
   }
 
   static async confirmUserCode(username, email, code) {
-    try {
-      let codeConfirm = await OTPCollection.findOne({ username, email }).select(
-        "-_id hashedOneTimeCode"
+    let codeConfirm = await OTPCollection.findOne({ username, email }).select(
+      "-_id hashedOneTimeCode"
+    );
+    if (
+      codeConfirm &&
+      (await bcrypt.compare(code, codeConfirm.hashedOneTimeCode))
+    ) {
+      await OTPCollection.findOneAndUpdate(
+        { username, email },
+        { codeConfirmed: true }
       );
-      if (
-        codeConfirm &&
-        (await bcrypt.compare(code, codeConfirm.hashedOneTimeCode))
-      ) {
-        await OTPCollection.findOneAndUpdate(
-          { username, email },
-          { codeConfirmed: true }
-        );
-      } else {
-        throw new NotFoundError("Inputted Code is Incorrect");
-      }
-    } catch (err) {
-      throw new NotFoundError(err.message);
+    } else if (
+      codeConfirm &&
+      !(await bcrypt.compare(code, codeConfirm.hashedOneTimeCode))
+    ) {
+      throw new BadRequestError("Inputted Code is Incorrect");
+    } else {
+      throw new NotFoundError("Verification code has expired.");
     }
   }
 

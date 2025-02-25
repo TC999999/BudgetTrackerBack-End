@@ -1,5 +1,5 @@
 const express = require("express");
-const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
+const { ensureLoggedIn } = require("../middleware/auth");
 const Budget = require("../models/budgets");
 const User = require("../models/users");
 const Expense = require("../models/expenses");
