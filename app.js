@@ -9,6 +9,7 @@ const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
 const budgetRoutes = require("./routes/budgets");
 const expenseRoutes = require("./routes/expenses");
+const incomeRoutes = require("./routes/incomes");
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/budgets", budgetRoutes);
 app.use("/expenses", expenseRoutes);
+app.use("/incomes", incomeRoutes);
 
 // 404 Error Handler
 app.use(function (req, res, next) {

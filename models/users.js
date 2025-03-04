@@ -41,7 +41,7 @@ class User {
 
   static async get(username) {
     const res = await UserCollection.findOne({ username })
-      .select("username totalAssets _id budgets")
+      .select("username totalAssets _id budgets incomes")
       .populate({
         path: "budgets",
         select: "_id title moneyAllocated moneySpent expenses",
@@ -50,6 +50,11 @@ class User {
           select: "_id title transaction date",
           options: { sort: { date: -1 } },
         },
+      })
+      .populate({
+        path: "incomes",
+        select:
+          "_id title salary readableUpdateTimeString lastReceived nextReceived",
       });
 
     let user = res;
@@ -119,6 +124,38 @@ class User {
     } else {
       throw new BadRequestError();
     }
+  }
+
+  static async addManyIncomes(incomeIDs, user_id) {
+    const res = await UserCollection.findByIdAndUpdate(
+      user_id,
+      {
+        $push: { incomes: { $each: [...incomeIDs] } },
+      },
+      { new: true }
+    ).populate({
+      path: "incomes",
+      select:
+        "_id title salary readableUpdateTimeString lastReceived nextReceived",
+    });
+    return res;
+  }
+
+  static async addIncome(incomeID, user_id) {
+    const res = await UserCollection.findByIdAndUpdate(
+      user_id,
+      {
+        $push: { incomes: incomeID },
+      },
+      { new: true }
+    )
+      .select("incomes")
+      .populate({
+        path: "incomes",
+        select:
+          "_id title salary readableUpdateTimeString lastReceived nextReceived",
+      });
+    return res;
   }
 
   static async updateAssets(username, addedAssets) {

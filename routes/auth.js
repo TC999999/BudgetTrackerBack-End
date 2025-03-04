@@ -2,6 +2,7 @@ const express = require("express");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/users");
 const Expenses = require("../models/expenses");
+const Income = require("../models/incomes");
 const { createToken } = require("../helpers/token");
 const { ensureLoggedIn } = require("../middleware/auth");
 
@@ -39,7 +40,18 @@ router.post("/login", async function (req, res, next) {
 
 router.post("/register", async function (req, res, next) {
   try {
-    const newUser = await User.register(req.body);
+    let { username, password, email, totalAssets, incomes } = req.body;
+    const newUser = await User.register({
+      username,
+      password,
+      email,
+      totalAssets,
+    });
+    const newIncomes = await Income.addManyIncomes(incomes, newUser._id);
+    const newUserWithIncomes = await User.addManyIncomes(
+      newIncomes,
+      newUser._id
+    );
     const recentExpenses = await Expenses.getUserRecentExpenses(newUser._id);
     const token = createToken(newUser);
     res
@@ -51,7 +63,7 @@ router.post("/register", async function (req, res, next) {
       })
       .status(201);
     delete newUser.password;
-    return res.status(201).json({ newUser, recentExpenses });
+    return res.status(201).json({ newUserWithIncomes, recentExpenses });
   } catch (err) {
     return next(err);
   }
