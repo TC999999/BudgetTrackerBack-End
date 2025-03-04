@@ -158,6 +158,23 @@ class User {
     return res;
   }
 
+  static async removeIncome(incomeID, user_id) {
+    const res = await UserCollection.findByIdAndUpdate(
+      user_id,
+      {
+        $pull: { incomes: incomeID },
+      },
+      { new: true }
+    )
+      .select("incomes")
+      .populate({
+        path: "incomes",
+        select:
+          "title salary readableUpdateTimeString lastReceived nextReceived",
+      });
+    return res;
+  }
+
   static async updateAssets(username, addedAssets) {
     const res = await UserCollection.findOneAndUpdate(
       { username },

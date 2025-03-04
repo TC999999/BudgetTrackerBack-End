@@ -35,8 +35,8 @@ router.delete("/delete/:id", ensureLoggedIn, async function (req, res, next) {
   try {
     const { id } = req.params;
     await Income.deleteIncome(id);
-    const newUserIncomes = await Income.getUserIncomes(res.locals.user.id);
-    return res.status(200).json({ newUserIncomes });
+    const user = await User.removeIncome(id, res.locals.user.id);
+    return res.status(200).json({ newUserIncomes: user.incomes });
   } catch (err) {
     return next(err);
   }

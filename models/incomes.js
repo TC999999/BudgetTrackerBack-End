@@ -6,16 +6,6 @@ const {
 } = require("../helpers/setUserIDIncomes");
 
 class Income {
-  static async getUserIncomes(user) {
-    try {
-      let res = await IncomeCollection.find({ user }).select(
-        "_id title salary readableUpdateTimeString lastReceived nextReceived"
-      );
-      return res;
-    } catch (err) {
-      throw new BadRequestError(err);
-    }
-  }
   static async addManyIncomes(incomeArr, user) {
     try {
       const incomes = incomeMapUserID(incomeArr, user);
