@@ -8,6 +8,9 @@ async function incomeJob(_id, salary, cronString, user) {
   });
   let { nextReceived, lastReceived } = makeCronDates(cronString);
   await IncomeCollection.findByIdAndUpdate(_id, { lastReceived, nextReceived });
+  //   console.log(
+  //     `Update user ${user} total assets by $${salary} at ${cronString}`
+  //   );
 }
 
 module.exports = { incomeJob };

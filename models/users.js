@@ -7,11 +7,21 @@ const { sendResetEmail } = require("../helpers/sendEmail");
 
 class User {
   static async authenticate(username, password) {
-    const res = await UserCollection.findOne({ username }).populate({
-      path: "budgets",
-      select: "_id title moneyAllocated moneySpent expenses",
-      populate: { path: "expenses", select: "_id transaction date" },
-    });
+    const res = await UserCollection.findOne({ username })
+      .populate({
+        path: "budgets",
+        select: "_id title moneyAllocated moneySpent expenses",
+        populate: {
+          path: "expenses",
+          select: "_id title transaction date",
+          options: { sort: { date: -1 } },
+        },
+      })
+      .populate({
+        path: "incomes",
+        select:
+          "_id title salary cronString readableUpdateTimeString lastReceived nextReceived",
+      });
 
     let user = res;
     if (user && (await bcrypt.compare(password, user.password))) {
@@ -54,7 +64,7 @@ class User {
       .populate({
         path: "incomes",
         select:
-          "_id title salary readableUpdateTimeString lastReceived nextReceived",
+          "_id title salary cronString readableUpdateTimeString lastReceived nextReceived",
       });
 
     let user = res;
@@ -136,7 +146,7 @@ class User {
     ).populate({
       path: "incomes",
       select:
-        "_id title salary readableUpdateTimeString lastReceived nextReceived",
+        "_id title salary cronString readableUpdateTimeString lastReceived nextReceived",
     });
     return res;
   }
@@ -153,7 +163,7 @@ class User {
       .populate({
         path: "incomes",
         select:
-          "_id title salary readableUpdateTimeString lastReceived nextReceived",
+          "_id title salary cronString readableUpdateTimeString lastReceived nextReceived",
       });
     return res;
   }
@@ -170,7 +180,7 @@ class User {
       .populate({
         path: "incomes",
         select:
-          "title salary readableUpdateTimeString lastReceived nextReceived",
+          "title salary cronString readableUpdateTimeString lastReceived nextReceived",
       });
     return res;
   }
