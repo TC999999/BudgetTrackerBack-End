@@ -5,11 +5,12 @@ const Expenses = require("../models/expenses");
 const Income = require("../models/incomes");
 const { createToken } = require("../helpers/token");
 const { ensureLoggedIn } = require("../middleware/auth");
+const { loadIncomeJobs } = require("../cron/loadIncomeJobs");
 
 const router = express.Router();
 
 router.get("/token", async function (req, res, next) {
-  const token = req.cookies.refresh_token;
+  const token = req.cookies.refresh_token ? true : false;
   return res.json({ token });
 });
 
@@ -53,6 +54,7 @@ router.post("/register", async function (req, res, next) {
       newUser._id
     );
     const recentExpenses = await Expenses.getUserRecentExpenses(newUser._id);
+    await loadIncomeJobs();
     const token = createToken(newUser);
     res
       .cookie("refresh_token", token, {

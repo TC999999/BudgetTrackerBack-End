@@ -6,7 +6,7 @@ async function loadIncomeJobs() {
   for (let income of allIncomeJobs) {
     await scheduleIncomeJob(income);
   }
-  console.log("***** Initial Income Jobs Loaded *****");
+  console.log("***** New Income Jobs Loaded *****");
 }
 
 module.exports = { loadIncomeJobs };

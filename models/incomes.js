@@ -15,6 +15,7 @@ class Income {
 
   static async addManyIncomes(incomeArr, user) {
     try {
+      if (incomeArr.length == 0) return [];
       const incomes = incomeMapUserID(incomeArr, user);
       let newIncomes = await IncomeCollection.insertMany(incomes);
       let newIncomeIDs = newIncomes.map((d) => d._id);

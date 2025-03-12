@@ -137,6 +137,7 @@ class User {
   }
 
   static async addManyIncomes(incomeIDs, user_id) {
+    if (incomeIDs.length === 0) return [];
     const res = await UserCollection.findByIdAndUpdate(
       user_id,
       {

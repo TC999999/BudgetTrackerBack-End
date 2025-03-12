@@ -25,13 +25,29 @@ async function sendConfirmEmail(toEmail, username) {
   const mailOptions = {
     from: `"Budget Tracker" <${process.env.NODE_MAILER_USER}>`,
     to: toEmail,
-    subject: "Your account has been created!",
+    subject: "Your Account has Been Created!",
     html: `
           <h1>Welcome to Budget Tracker, ${username}!</h1>
           <p>This is a confirmation email to inform you that your account has successfully been created.</p>
+          <p>Thank you for choosing Budget Tracker.</p>
           `,
   };
   await transporter.sendMail(mailOptions);
 }
 
-module.exports = { sendResetEmail, sendConfirmEmail };
+async function sendIncomeEmail(toEmail, username, title, salary, totalAssets) {
+  const mailOptions = {
+    from: `"Budget Tracker" <${process.env.NODE_MAILER_USER}>`,
+    to: toEmail,
+    subject: "Received Income!",
+    html: `
+          <h1>Hello, ${username}!</h1>
+          <p>This is a notification email letting you know that your ${title} income has been received.</p>
+          <p>Your total assets have been increased by $${salary} and currently sits at</p>
+          <p>$${totalAssets}.</p>
+          `,
+  };
+  await transporter.sendMail(mailOptions);
+}
+
+module.exports = { sendResetEmail, sendConfirmEmail, sendIncomeEmail };

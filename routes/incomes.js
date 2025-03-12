@@ -23,7 +23,7 @@ router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
       _id: income._id,
       salary: salary.toFixed(2),
       cronString,
-      user: user._id,
+      user: res.locals.user.id,
     });
     return res.status(201).json({ newUserIncomes: user.incomes });
   } catch (err) {

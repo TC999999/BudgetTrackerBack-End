@@ -12,8 +12,8 @@ const makeCronDates = (cronString) => {
 };
 
 const incomeMapUserID = (incomeArr, user) => {
-  let { lastReceived, nextReceived } = makeCronDates(incomeArr.cronString);
   let newIncomeArr = incomeArr.map((v) => {
+    let { lastReceived, nextReceived } = makeCronDates(v.cronString);
     return { ...v, user, lastReceived, nextReceived };
   });
   return newIncomeArr;
