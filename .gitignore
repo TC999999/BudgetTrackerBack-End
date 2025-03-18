@@ -1,2 +1,5 @@
 node_modules
 .env
+views/emails/confirm.handlebars.json
+views/emails/income.handlebars.json
+views/emails/resetPassword.handlebars.json

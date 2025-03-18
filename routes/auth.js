@@ -6,6 +6,7 @@ const Income = require("../models/incomes");
 const { createToken } = require("../helpers/token");
 const { ensureLoggedIn } = require("../middleware/auth");
 const { loadIncomeJobs } = require("../cron/loadIncomeJobs");
+const { sendConfirmEmail } = require("../sendEmail");
 
 const router = express.Router();
 
@@ -65,6 +66,7 @@ router.post("/register", async function (req, res, next) {
       })
       .status(201);
     delete newUser.password;
+    await sendConfirmEmail(email, username);
     return res.status(201).json({ newUserWithIncomes, recentExpenses });
   } catch (err) {
     return next(err);

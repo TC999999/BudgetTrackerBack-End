@@ -25,6 +25,7 @@
     "morgan": "^1.10.0",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
+    "nodemailer-express-handlebars": "^6.1.2",
     "validator": "^13.12.0"
   }
 }

@@ -3,7 +3,7 @@ const { NotFoundError, BadRequestError } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
 const { OTPCollection } = require("../schemas/OTP");
 const { makeOneTimeCode } = require("../helpers/makeOneTimeCode");
-const { sendResetEmail } = require("../helpers/sendEmail");
+const { sendResetEmail } = require("../sendEmail");
 
 class User {
   static async authenticate(username, password) {
@@ -80,7 +80,7 @@ class User {
     }).select("-_id username email");
     if (!res)
       throw new NotFoundError(
-        `User of ${username} with email of ${email} does not exist`
+        `Could not find user ${username} connected to the given email address. Please check if either your username or email address is spelled correctly.`
       );
 
     let otp = makeOneTimeCode();
