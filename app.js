@@ -23,7 +23,7 @@ app.use(
   })
 );
 
-// Parses JSON
+// Parses JSON request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

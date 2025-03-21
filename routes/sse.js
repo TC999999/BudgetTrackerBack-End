@@ -13,13 +13,20 @@ router.get("/:id", (req, res) => {
     res.write(`data: ${JSON.stringify(updateData)}\n\n`);
   };
 
-  //   console.log(cronEvent.listenerCount(`income_for_${req.params.id}`));
+  // console.log(cronEvent.listenerCount(`income_for_${req.params.id}`));
   cronEvent.on(`income_for_${req.params.id}`, sendUpdateData);
-  //   console.log(cronEvent.listenerCount(`income_for_${req.params.id}`));
+  // console.log(cronEvent.listenerCount(`income_for_${req.params.id}`));
 
   res.write(
     `data: ${JSON.stringify({ message: `Hello User ${req.params.id}` })} \n\n`
   );
+
+  req.on("error", (err) => {
+    console.log(err);
+    // console.log(`*****SSE Connnection with User ${req.params.id} Closed*****`);
+    // cronEvent.off(`income_for_${req.params.id}`, sendUpdateData);
+    // res.end();
+  });
 
   req.on("close", () => {
     console.log(`*****SSE Connnection with User ${req.params.id} Closed*****`);

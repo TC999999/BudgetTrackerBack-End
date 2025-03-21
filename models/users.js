@@ -49,8 +49,8 @@ class User {
     }
   }
 
-  static async get(username) {
-    const res = await UserCollection.findOne({ username })
+  static async get(userID) {
+    const res = await UserCollection.findById(userID)
       .select("username totalAssets _id budgets incomes")
       .populate({
         path: "budgets",
@@ -68,7 +68,7 @@ class User {
       });
 
     let user = res;
-    if (!user) throw new NotFoundError(`User of ${username} does not exist`);
+    if (!user) throw new NotFoundError(`User of ${userID} does not exist`);
 
     return user;
   }

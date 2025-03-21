@@ -2,6 +2,18 @@ require("dotenv").config();
 
 const SECRET_KEY = process.env.SECRET_KEY || "secret-dev";
 
+const ACCESS_SECRET_KEY = process.env.ACCESS_SECRET_KEY;
+
+const ACCESS_EXPIRATION = "15m";
+
+const ACCESS_EXPIRATION_MS = 15 * 60 * 1000;
+
+const REFRESH_SECRET_KEY = process.env.REFRESH_SECRET_KEY;
+
+const REFRESH_EXPIRATION = "1d";
+
+const REFRESH_EXPIRATION_MS = 24 * 60 * 60 * 1000;
+
 const PORT = +process.env.port || 3001;
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -19,4 +31,10 @@ module.exports = {
   BCRYPT_WORK_FACTOR,
   NODE_MAILER_USER,
   NODE_MAILER_PASS,
+  ACCESS_SECRET_KEY,
+  ACCESS_EXPIRATION,
+  ACCESS_EXPIRATION_MS,
+  REFRESH_SECRET_KEY,
+  REFRESH_EXPIRATION,
+  REFRESH_EXPIRATION_MS,
 };

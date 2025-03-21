@@ -3,7 +3,12 @@ const { BadRequestError } = require("../expressError");
 const User = require("../models/users");
 const Expenses = require("../models/expenses");
 const Income = require("../models/incomes");
-const { createToken } = require("../helpers/token");
+const { ACCESS_EXPIRATION_MS, REFRESH_EXPIRATION_MS } = require("../config");
+const {
+  createAccessToken,
+  createRefreshToken,
+  verifyRefreshToken,
+} = require("../helpers/token");
 const { ensureLoggedIn } = require("../middleware/auth");
 const { loadIncomeJobs } = require("../cron/loadIncomeJobs");
 const { sendConfirmEmail } = require("../sendEmail");
@@ -11,7 +16,7 @@ const { sendConfirmEmail } = require("../sendEmail");
 const router = express.Router();
 
 router.get("/token", async function (req, res, next) {
-  const token = req.cookies.refresh_token ? true : false;
+  const token = verifyRefreshToken(req.cookies.refresh_token, res);
   return res.json({ token });
 });
 
@@ -25,13 +30,23 @@ router.post("/login", async function (req, res, next) {
     }
     const user = await User.authenticate(username, password);
     const recentExpenses = await Expenses.getUserRecentExpenses(user._id);
-    const token = createToken(user);
+    const refreshToken = createRefreshToken(user);
+    const accessToken = createAccessToken(user);
     res
-      .cookie("refresh_token", token, {
+      .cookie("access_token", accessToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: true,
+        maxAge: ACCESS_EXPIRATION_MS,
+        sameSite: "strict",
+      })
+      .status(200);
+
+    res
+      .cookie("refresh_token", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: REFRESH_EXPIRATION_MS,
+        sameSite: "strict",
       })
       .status(200);
     return res.status(200).json({ user, recentExpenses });
@@ -56,15 +71,25 @@ router.post("/register", async function (req, res, next) {
     );
     const recentExpenses = await Expenses.getUserRecentExpenses(newUser._id);
     await loadIncomeJobs();
-    const token = createToken(newUser);
+    const refreshToken = createRefreshToken(newUser);
+
     res
-      .cookie("refresh_token", token, {
+      .cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: true,
+        maxAge: REFRESH_EXPIRATION_MS,
+        sameSite: "strict",
       })
-      .status(201);
+      .status(200);
+    const accessToken = createAccessToken(newUser);
+    res
+      .cookie("access_token", accessToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: ACCESS_EXPIRATION_MS,
+        sameSite: "strict",
+      })
+      .status(200);
     delete newUser.password;
     await sendConfirmEmail(email, username);
     return res.status(201).json({ newUserWithIncomes, recentExpenses });
@@ -103,8 +128,19 @@ router.patch("/resetPassword", async function (req, res, next) {
   }
 });
 
-router.get("/logOut", ensureLoggedIn, async function (req, res, next) {
+// router.get("/logOut", ensureLoggedIn, async function (req, res, next) {
+//   try {
+//     res.clearCookie("access_token").status(200);
+//     res.clearCookie("refresh_token").status(200);
+//     res.send();
+//   } catch (err) {
+//     return next(err);
+//   }
+// });
+
+router.get("/logOut", async function (req, res, next) {
   try {
+    res.clearCookie("access_token").status(200);
     res.clearCookie("refresh_token").status(200);
     res.send();
   } catch (err) {

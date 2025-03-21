@@ -3,7 +3,7 @@ const { IncomeCollection } = require("../schemas/incomes");
 const Income = require("../models/incomes");
 const { makeCronDates } = require("../helpers/setUserIDIncomes");
 const { cronEvent } = require("./cronEvents");
-const { sendIncomeEmail } = require("../sendEmail");
+// const { sendIncomeEmail } = require("../sendEmail");
 
 async function incomeJob(_id, salary, cronString, user) {
   let newTotalAssets = await UserCollection.findByIdAndUpdate(
@@ -27,7 +27,8 @@ async function incomeJob(_id, salary, cronString, user) {
     newTotalAssets,
     newUserIncomes,
   });
-  await sendIncomeEmail(email, username, title, salary, totalAssets);
 }
+
+// await sendIncomeEmail(email, username, title, salary, totalAssets);
 
 module.exports = { incomeJob };

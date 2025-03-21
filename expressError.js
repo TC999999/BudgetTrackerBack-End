@@ -20,7 +20,7 @@ class UnauthorizedError extends ExpressError {
 
 class ForbiddenError extends ExpressError {
   constructor(message = "Forbidden") {
-    super(message, 400);
+    super(message, 403);
   }
 }
 
@@ -30,10 +30,17 @@ class NotFoundError extends ExpressError {
   }
 }
 
+class UnacceptableError extends ExpressError {
+  constructor(message = "Unacceptable") {
+    super(message, 406);
+  }
+}
+
 module.exports = {
   ExpressError,
   NotFoundError,
   UnauthorizedError,
   BadRequestError,
   ForbiddenError,
+  UnacceptableError,
 };
