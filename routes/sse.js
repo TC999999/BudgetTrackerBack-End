@@ -2,8 +2,6 @@ const express = require("express");
 const { cronEvent } = require("../cron/cronEvents");
 const router = express.Router();
 
-// creates a server-side event route to provide user with real time updates to their total assets at the
-// intervals specified on their incomes
 router.get("/:id", (req, res) => {
   console.log(`*****SSE Connection with User ${req.params.id} Open*****`);
   res.setHeader("Content-Type", "text/event-stream");
@@ -11,15 +9,18 @@ router.get("/:id", (req, res) => {
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders();
 
-  // sends data to frontend
   const sendUpdateData = (updateData) => {
     res.write(`data: ${JSON.stringify(updateData)}\n\n`);
   };
 
-  // listens for cront evets
+  // console.log(cronEvent.listenerCount(`income_for_${req.params.id}`));
   cronEvent.on(`income_for_${req.params.id}`, sendUpdateData);
+  // console.log(cronEvent.listenerCount(`income_for_${req.params.id}`));
 
-  // closes connection
+  res.write(
+    `data: ${JSON.stringify({ message: `Hello User ${req.params.id}` })} \n\n`
+  );
+
   req.on("close", () => {
     console.log(`*****SSE Connnection with User ${req.params.id} Closed*****`);
     cronEvent.off(`income_for_${req.params.id}`, sendUpdateData);

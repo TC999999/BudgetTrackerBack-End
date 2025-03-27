@@ -2,8 +2,6 @@ const jwt = require("jsonwebtoken");
 const { ACCESS_SECRET_KEY } = require("../config");
 const { UnauthorizedError, UnacceptableError } = require("../expressError");
 
-// when the server receives a request, checks if an access token is stored in cookies and stores in
-// res.locals
 function authenticateJWT(req, res, next) {
   try {
     const token = req.cookies.access_token;
@@ -16,7 +14,6 @@ function authenticateJWT(req, res, next) {
   }
 }
 
-// if user is not found is res.locals, refuses request and sends an error
 function ensureLoggedIn(req, res, next) {
   try {
     if (!res.locals.user) {
@@ -30,7 +27,6 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
-// if user is not found is res.locals, refuses request and sends an error
 function ensureRefreshToken(req, res, next) {
   try {
     if (!res.locals.user) {
@@ -43,7 +39,7 @@ function ensureRefreshToken(req, res, next) {
     return next(err);
   }
 }
-// if user id in res.locals and in url parameters don't match, an error is thrown
+
 function ensureCorrectUser(req, res, next) {
   try {
     if (!res.locals.user) {

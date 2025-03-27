@@ -8,8 +8,6 @@ const User = require("../models/users");
 
 const router = express.Router();
 
-// adds a new income to the db with a specified user id attached to it; also schedules a new income job
-// to the income jobs map
 router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
   try {
     const { title, salary, cronString, readableUpdateTimeString } = req.body;
@@ -33,12 +31,9 @@ router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
-// updates a single income with the specified id, also updates the correlated income job on the hashmap
-// of scheduled income jobs
 router.patch("/update/:id", ensureLoggedIn, async function (req, res, next) {
   try {
     const { id } = req.params;
-    await Income.getUserIncome(id, res.locals.user.id);
     const { title, salary, cronString, readableUpdateTimeString } = req.body;
     await Income.updateIncome(
       id,
@@ -60,12 +55,9 @@ router.patch("/update/:id", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
-// deletes an income from the income collection in the db; also stops and removes the job from the income
-// job hashmap
 router.delete("/delete/:id", ensureLoggedIn, async function (req, res, next) {
   try {
     const { id } = req.params;
-    await Income.getUserIncome(id, res.locals.user.id);
     await Income.deleteIncome(id);
     stopIncomeJob(id);
     const user = await User.removeIncome(id, res.locals.user.id);
