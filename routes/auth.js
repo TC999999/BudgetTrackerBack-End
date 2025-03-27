@@ -15,11 +15,16 @@ const { sendConfirmEmail } = require("../sendEmail");
 
 const router = express.Router();
 
+// whenever the page refreshes, checks for a refresh token and creates a new access token and sets it in
+// an http-only cookie, lets the front-end know that the token exists (does not send token through to
+// front end)
 router.get("/token", async function (req, res, next) {
   const token = verifyRefreshToken(req.cookies.refresh_token, res);
   return res.json({ token });
 });
 
+// authenticates the user with their username and password, retrieves the user's most recent expenses,
+// sets both the refresh and access tokens into cookies, and sends user data back to frontend
 router.post("/login", async function (req, res, next) {
   try {
     const { username, password } = req.body;
@@ -55,6 +60,9 @@ router.post("/login", async function (req, res, next) {
   }
 });
 
+// creates a new user with the request body data the user as well as any intital incomes the user created
+// (adds them to both db and income job schdeule map). Additionally, sets new refresh and access tokens
+// into cookies, returns the user's information to the frontend
 router.post("/register", async function (req, res, next) {
   try {
     let { username, password, email, totalAssets, incomes } = req.body;
@@ -98,6 +106,7 @@ router.post("/register", async function (req, res, next) {
   }
 });
 
+// confirms if a user with a specified username and email exist in the users collection
 router.post("/confirmUserInfo", async function (req, res, next) {
   try {
     const { username, email } = req.body;
@@ -108,6 +117,7 @@ router.post("/confirmUserInfo", async function (req, res, next) {
   }
 });
 
+// confirms if a one time verification code tied with a user's username and email exists in the db
 router.post("/confirmOTP", async function (req, res, next) {
   try {
     const { username, email, code } = req.body;
@@ -118,6 +128,7 @@ router.post("/confirmOTP", async function (req, res, next) {
   }
 });
 
+// updates user's password if they have made a request to do so
 router.patch("/resetPassword", async function (req, res, next) {
   try {
     const { username, email, newPassword } = req.body;
@@ -128,16 +139,7 @@ router.patch("/resetPassword", async function (req, res, next) {
   }
 });
 
-// router.get("/logOut", ensureLoggedIn, async function (req, res, next) {
-//   try {
-//     res.clearCookie("access_token").status(200);
-//     res.clearCookie("refresh_token").status(200);
-//     res.send();
-//   } catch (err) {
-//     return next(err);
-//   }
-// });
-
+// removes both the access JWT and refresh JWT from cookies
 router.get("/logOut", async function (req, res, next) {
   try {
     res.clearCookie("access_token").status(200);

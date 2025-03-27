@@ -1,3 +1,4 @@
+// super class for express error
 class ExpressError extends Error {
   constructor(message, status) {
     super();
@@ -6,12 +7,14 @@ class ExpressError extends Error {
   }
 }
 
+// Bad request error: bad data was sent to backend
 class BadRequestError extends ExpressError {
   constructor(message = "Bad Request") {
     super(message, 400);
   }
 }
 
+// Unauthorized error: attempt to changes or get another user's information
 class UnauthorizedError extends ExpressError {
   constructor(message = "Unauthorized") {
     super(message, 401);
@@ -24,12 +27,14 @@ class ForbiddenError extends ExpressError {
   }
 }
 
+// Not found error: db document or page could not be found
 class NotFoundError extends ExpressError {
   constructor(message = "Not Found") {
     super(message, 404);
   }
 }
 
+// Unacceptable error: attempt perform actions without access token
 class UnacceptableError extends ExpressError {
   constructor(message = "Unacceptable") {
     super(message, 406);

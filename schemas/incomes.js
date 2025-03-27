@@ -1,5 +1,7 @@
 const { Schema, model } = require("mongoose");
 
+// schema for incomes collection documents for db
+// (title, salary, cronString, readableUpdateTimeString, user, lasteReceived, nextReceived)
 const IncomeSchema = new Schema(
   {
     title: {
@@ -37,6 +39,7 @@ const IncomeSchema = new Schema(
   { versionKey: false, toJSON: { getters: true }, id: false }
 );
 
+// creates income model when connected to mongodb
 const IncomeCollection = model("Income", IncomeSchema);
 
 module.exports = { IncomeCollection };

@@ -2,6 +2,8 @@ const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 
+// schema for one time verification code collection documents for db
+// (username, email, hashedOneTimeCode, codeConfirmed, createdAt)
 const OTPSchema = new Schema(
   {
     username: {
@@ -21,6 +23,7 @@ const OTPSchema = new Schema(
   { versionKey: false, id: false }
 );
 
+// when a document is creates, hashed the one time verification code using bcrypt
 OTPSchema.pre("save", async function (next) {
   if (this.isModified("hashedOneTimeCode")) {
     this.hashedOneTimeCode = await bcrypt.hash(
@@ -31,6 +34,7 @@ OTPSchema.pre("save", async function (next) {
   next();
 });
 
+// creates one time verification model when connected to mongodb
 const OTPCollection = model("OTP", OTPSchema);
 
 module.exports = { OTPCollection };
