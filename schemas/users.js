@@ -3,15 +3,19 @@ const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 const { isEmail } = require("validator");
 
+// returns if email addess is valid
 function validEmail(email) {
   return isEmail(email);
 }
 
+// validator array for email address
 const emailValidator = {
   validator: validEmail,
   message: "Invalid Email Address",
 };
 
+// schema for users collection documents for db
+// (username, password, email, totalAssets, budgets, incomes)
 const UserSchema = new Schema(
   {
     username: {
@@ -59,6 +63,7 @@ const UserSchema = new Schema(
   { versionKey: false, toJSON: { getters: true }, id: false }
 );
 
+// when a new user is created, hashes the new password using bcrypt
 UserSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, BCRYPT_WORK_FACTOR);
@@ -66,6 +71,8 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
+// when a user is updated and that update data contains a new password, hashes the updated password
+// using bcrypt
 UserSchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
   if (update.$set && update.$set.password) {
@@ -77,6 +84,7 @@ UserSchema.pre("findOneAndUpdate", async function (next) {
   next();
 });
 
+// creates users model when connected to mongodb
 const UserCollection = model("User", UserSchema);
 
 module.exports = { UserCollection };

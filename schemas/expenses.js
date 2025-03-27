@@ -1,15 +1,18 @@
 const { Schema, model } = require("mongoose");
 
+// expense titles can only contain characters in the regular expression
 function validCharacters(title) {
   let exp = /^[\w ]+$/i;
   return exp.test(title);
 }
 
+// expense titles cannot contain spaces at beginning or end
 function validTrim(title) {
   let exp = /^\s+|\s+$/g;
   return !exp.test(title);
 }
 
+// array of validators for expense titles
 const expenseValidators = [
   {
     validator: validCharacters,
@@ -22,6 +25,7 @@ const expenseValidators = [
   },
 ];
 
+// schema for expense collection documents for db (title, budget, user, transaction, date)
 const ExpenseSchema = new Schema(
   {
     title: {
@@ -61,6 +65,7 @@ const ExpenseSchema = new Schema(
   { versionKey: false, toJSON: { getters: true }, id: false }
 );
 
+// creates expense model when connected to mongodb
 const ExpenseCollection = model("Expense", ExpenseSchema);
 
 module.exports = { ExpenseCollection };

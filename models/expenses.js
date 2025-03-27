@@ -1,7 +1,24 @@
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, UnauthorizedError } = require("../expressError");
+const { BudgetCollection } = require("../schemas/budgets");
 const { ExpenseCollection } = require("../schemas/expenses");
 
+// class for CRUD routes for expesne collection in db
 class Expenses {
+  // finds an expense that contains both a specified id, budget id, and user id, throws an error if none
+  // are found
+  static async findUserAndBudgetExpense(id, budget, user) {
+    const findExpense = await ExpenseCollection.findOne({
+      _id: id,
+      budget,
+      user,
+    });
+    if (!findExpense)
+      throw new UnauthorizedError(
+        "Cannot update an expense that does not belong to you"
+      );
+  }
+
+  // adds a new expense with a title, transaction value, date, budget id, and user id
   static async addExpense(title, transaction, date, budget, user) {
     try {
       const res = await ExpenseCollection.create({
@@ -13,13 +30,11 @@ class Expenses {
       });
       return res;
     } catch (err) {
-      let messages = Object.values(err.errors).map((e) => {
-        return [e.path, e.message];
-      });
-      throw new BadRequestError(messages);
+      throw new BadRequestError(err.message);
     }
   }
 
+  // gets and returns a user's ten most recent expenses
   static async getUserRecentExpenses(user) {
     try {
       const res = await ExpenseCollection.find({ user })
@@ -33,6 +48,7 @@ class Expenses {
     }
   }
 
+  // deletes a single expense with a specific id and user id
   static async deleteExpense(expenseID) {
     try {
       await ExpenseCollection.findByIdAndDelete(expenseID);
@@ -41,6 +57,7 @@ class Expenses {
     }
   }
 
+  // deletes multiple expenses with specific ids and user id
   static async deleteManyExpenses(expenseIDs) {
     try {
       await ExpenseCollection.deleteMany({ _id: expenseIDs });

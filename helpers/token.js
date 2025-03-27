@@ -8,6 +8,7 @@ const {
   ACCESS_EXPIRATION_MS,
 } = require("../config");
 
+// creates refresh JWT
 function createRefreshToken(user) {
   let payload = { username: user.username, id: user._id };
   return jwt.sign(payload, REFRESH_SECRET_KEY, {
@@ -15,6 +16,7 @@ function createRefreshToken(user) {
   });
 }
 
+// creates access JWT
 function createAccessToken(user) {
   let payload = { username: user.username, id: user._id };
   return jwt.sign(payload, ACCESS_SECRET_KEY, {
@@ -22,6 +24,8 @@ function createAccessToken(user) {
   });
 }
 
+// checks if refresh token exists; if it does, creates a new access token and stores it as an http only
+// cookie
 function verifyRefreshToken(refreshToken, res) {
   if (!refreshToken) return false;
   return jwt.verify(refreshToken, REFRESH_SECRET_KEY, (err, decoded) => {

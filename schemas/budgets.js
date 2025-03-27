@@ -1,15 +1,18 @@
 const { Schema, model } = require("mongoose");
 
+// budget titles will only accept titles with the characters in the regExp
 function validCharacters(title) {
   let exp = /^[\w ]+$/i;
   return exp.test(title);
 }
 
+// budget titles cannot have unnecessary spaces
 function validTrim(title) {
   let exp = /^\s+|\s+$/g;
   return !exp.test(title);
 }
 
+// array of validators for budget titles
 const budgetValidators = [
   {
     validator: validCharacters,
@@ -22,6 +25,7 @@ const budgetValidators = [
   },
 ];
 
+// schema for budget collection documents for db (title, user, moneyAllocated, moneySpent, expenses)
 const BudgetSchema = new Schema(
   {
     title: {
@@ -66,6 +70,7 @@ const BudgetSchema = new Schema(
   { versionKey: false, toJSON: { getters: true }, id: false }
 );
 
+// creates budget model when connected to mongodb
 const BudgetCollection = model("Budget", BudgetSchema);
 
 module.exports = { BudgetCollection };
