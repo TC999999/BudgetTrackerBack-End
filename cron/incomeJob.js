@@ -1,5 +1,6 @@
 const { UserCollection } = require("../schemas/users");
 const { IncomeCollection } = require("../schemas/incomes");
+const { TransactionCollection } = require("../schemas/miscTransactions");
 const Income = require("../models/incomes");
 const { makeCronDates } = require("../helpers/setUserIDIncomes");
 const { cronEvent } = require("./cronEvents");
@@ -24,6 +25,13 @@ async function incomeJob(_id, salary, cronString, user) {
   ).select("title salary lastReceived nextReceived");
   let { title } = income;
   let newUserIncomes = await Income.getUserIncomes(user);
+  await TransactionCollection.create({
+    title,
+    user,
+    transaction: salary,
+    fromIncome: true,
+    date: lastReceived,
+  });
 
   cronEvent.emit(`income_for_${user}`, {
     newTotalAssets,

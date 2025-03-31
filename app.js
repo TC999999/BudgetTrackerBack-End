@@ -7,6 +7,7 @@ const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
+const transactionRoutes = require("./routes/miscTransactions");
 const budgetRoutes = require("./routes/budgets");
 const expenseRoutes = require("./routes/expenses");
 const incomeRoutes = require("./routes/incomes");
@@ -36,6 +37,7 @@ app.use(authenticateJWT);
 // CRUD Routes
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/transactions", transactionRoutes);
 app.use("/budgets", budgetRoutes);
 app.use("/expenses", expenseRoutes);
 app.use("/incomes", incomeRoutes);

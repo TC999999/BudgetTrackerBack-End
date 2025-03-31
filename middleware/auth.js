@@ -48,7 +48,7 @@ function ensureCorrectUser(req, res, next) {
   try {
     if (!res.locals.user) {
       throw new UnauthorizedError("You must be logged in to access page");
-    } else if (res.locals.user.username !== req.params.username) {
+    } else if (res.locals.user.id !== req.params.id) {
       throw new UnauthorizedError("Incorrect User");
     }
     return next();

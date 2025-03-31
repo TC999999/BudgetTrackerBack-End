@@ -41,9 +41,16 @@ router.patch("/update/:id", ensureLoggedIn, async function (req, res, next) {
       res.locals.user.id,
       addedMoney
     );
+    const newRecentExpenses = await Expense.getUserRecentExpenses(
+      res.locals.user.id
+    );
     return res
       .status(200)
-      .json({ newUserBudgets: user.budgets, newAssets: user.totalAssets });
+      .json({
+        newUserBudgets: user.budgets,
+        newAssets: user.totalAssets,
+        newUserExpenses: newRecentExpenses,
+      });
   } catch (err) {
     return next(err);
   }

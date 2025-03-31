@@ -2,6 +2,7 @@ const express = require("express");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const User = require("../models/users");
 const Expenses = require("../models/expenses");
+const Transaction = require("../models/miscTransactions");
 
 const router = express.Router();
 
@@ -35,8 +36,16 @@ router.get("/get/currentuser", ensureLoggedIn, async function (req, res, next) {
 // found in the access token as well as any recent expenses that user has made
 router.patch("/update/assets", ensureLoggedIn, async function (req, res, next) {
   try {
-    const { value } = req.body;
+    const { title, value, operation, date } = req.body;
     const user = await User.updateAssets(res.locals.user.id, value);
+    await Transaction.addTransaction(
+      title,
+      res.locals.user.id,
+      value,
+      operation,
+      date
+    );
+
     return res.status(200).json({ user });
   } catch (err) {
     return next(err);

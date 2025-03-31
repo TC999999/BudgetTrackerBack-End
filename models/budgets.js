@@ -5,7 +5,7 @@ const { BudgetCollection } = require("../schemas/budgets");
 class Budget {
   // finds a budget that contains both a specified budget id and user id, throws an error if none are found
   static async findUserBudget(id, user) {
-    const findBudget = BudgetCollection.findOne({ _id: id, user });
+    const findBudget = await BudgetCollection.findOne({ _id: id, user });
     if (!findBudget)
       throw new UnauthorizedError(
         "Cannot update a budget that does not belong to you"

@@ -34,12 +34,25 @@ class Expenses {
     }
   }
 
-  // gets and returns a user's ten most recent expenses
+  // gets and returns all of a user's expenses
+  static async getAllUserExpenses(user) {
+    try {
+      const res = await ExpenseCollection.find({ user })
+        .select("_id title budget transaction date")
+        .sort({ date: -1 })
+        .populate({ path: "budget", select: "-_id title" });
+      return res;
+    } catch (err) {
+      throw new BadRequestError(err.message);
+    }
+  }
+
+  // gets and returns a user's five most recent expenses
   static async getUserRecentExpenses(user) {
     try {
       const res = await ExpenseCollection.find({ user })
         .select("_id title budget transaction date")
-        .limit(10)
+        .limit(5)
         .sort({ date: -1 })
         .populate({ path: "budget", select: "title" });
       return res;
