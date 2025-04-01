@@ -28,7 +28,12 @@ class Expenses {
         budget,
         user,
       });
-      return res;
+      return {
+        _id: res._id,
+        title: res.title,
+        date: res.date,
+        transaction: res.transaction,
+      };
     } catch (err) {
       throw new BadRequestError(err.message);
     }
@@ -41,6 +46,18 @@ class Expenses {
         .select("_id title budget transaction date")
         .sort({ date: -1 })
         .populate({ path: "budget", select: "-_id title" });
+      return res;
+    } catch (err) {
+      throw new BadRequestError(err.message);
+    }
+  }
+
+  // gets and returns all of a budget's expenses
+  static async getAllBudgetExpenses(budget) {
+    try {
+      const res = await ExpenseCollection.find({ budget })
+        .select("_id title transaction date")
+        .sort({ date: -1 });
       return res;
     } catch (err) {
       throw new BadRequestError(err.message);
@@ -64,16 +81,17 @@ class Expenses {
   // deletes a single expense with a specific id and user id
   static async deleteExpense(expenseID) {
     try {
-      await ExpenseCollection.findByIdAndDelete(expenseID);
+      let res = await ExpenseCollection.findByIdAndDelete(expenseID);
+      return res;
     } catch (err) {
       throw new BadRequestError(err.message);
     }
   }
 
-  // deletes multiple expenses with specific ids and user id
-  static async deleteManyExpenses(expenseIDs) {
+  // deletes multiple expenses with specific budget id
+  static async deleteManyExpenses(budgetID) {
     try {
-      await ExpenseCollection.deleteMany({ _id: expenseIDs });
+      await ExpenseCollection.deleteMany({ budget: budgetID });
     } catch (err) {
       throw new BadRequestError(err.message);
     }

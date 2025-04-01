@@ -11,8 +11,7 @@ const router = express.Router();
 router.get("/:id", ensureCorrectUser, async function (req, res, next) {
   try {
     const user = await User.get(req.params.id);
-    let recentExpenses = await Expenses.getUserRecentExpenses(req.params.id);
-    return res.status(200).json({ user, recentExpenses });
+    return res.status(200).json({ user });
   } catch (err) {
     return next(err);
   }
@@ -23,10 +22,7 @@ router.get("/:id", ensureCorrectUser, async function (req, res, next) {
 router.get("/get/currentuser", ensureLoggedIn, async function (req, res, next) {
   try {
     const user = await User.get(res.locals.user.id);
-    let recentExpenses = await Expenses.getUserRecentExpenses(
-      res.locals.user.id
-    );
-    return res.status(200).json({ user, recentExpenses });
+    return res.status(200).json({ user });
   } catch (err) {
     return next(err);
   }

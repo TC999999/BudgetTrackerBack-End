@@ -70,7 +70,6 @@ const TransactionSchema = new Schema(
       validate: transactionOperationValidators,
     },
     fromIncome: { type: Boolean, default: false, required: true },
-    budgetTitle: { type: String, default: "", required: true },
     date: {
       type: Date,
       default: Date.now,

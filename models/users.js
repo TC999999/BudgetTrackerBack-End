@@ -13,12 +13,7 @@ class User {
     const res = await UserCollection.findOne({ username })
       .populate({
         path: "budgets",
-        select: "_id title moneyAllocated moneySpent expenses",
-        populate: {
-          path: "expenses",
-          select: "_id title transaction date",
-          options: { sort: { date: -1 } },
-        },
+        select: "_id title moneyAllocated moneySpent",
       })
       .populate({
         path: "incomes",
@@ -59,12 +54,7 @@ class User {
       .select("username totalAssets _id budgets incomes")
       .populate({
         path: "budgets",
-        select: "_id title moneyAllocated moneySpent expenses",
-        populate: {
-          path: "expenses",
-          select: "_id title transaction date",
-          options: { sort: { date: -1 } },
-        },
+        select: "_id title moneyAllocated moneySpent",
       })
       .populate({
         path: "incomes",
@@ -224,17 +214,8 @@ class User {
       user,
       { $inc: { totalAssets: -addedAssets } },
       { new: true }
-    )
-      .select("totalAssets budgets")
-      .populate({
-        path: "budgets",
-        select: "_id title moneyAllocated moneySpent expenses",
-        populate: {
-          path: "expenses",
-          select: "_id title transaction date",
-          options: { sort: { date: -1 } },
-        },
-      });
+    ).select("totalAssets");
+
     return res;
   }
 
@@ -252,12 +233,7 @@ class User {
       .select("totalAssets budgets")
       .populate({
         path: "budgets",
-        select: "_id title moneyAllocated moneySpent expenses",
-        populate: {
-          path: "expenses",
-          select: "_id title transaction date",
-          options: { sort: { date: -1 } },
-        },
+        select: "_id title moneyAllocated moneySpent",
       });
     return res;
   }
@@ -272,17 +248,7 @@ class User {
         $pull: { budgets: budgetID },
       },
       { new: true }
-    )
-      .select("totalAssets budgets")
-      .populate({
-        path: "budgets",
-        select: "_id title moneyAllocated moneySpent expenses",
-        populate: {
-          path: "expenses",
-          select: "_id title transaction date",
-          options: { sort: { date: -1 } },
-        },
-      });
+    ).select("totalAssets");
     return res;
   }
 }

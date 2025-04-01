@@ -28,13 +28,10 @@ class Budget {
 
   // returns all budgets with a specific user ID and the expenses paid with their funds
   static async getNewUserBudgets(user) {
-    const res = await BudgetCollection.find({ user })
-      .select("_id title moneyAllocated moneySpent expenses")
-      .populate({
-        path: "expenses",
-        select: "_id title transaction date",
-        options: { sort: { date: -1 } },
-      });
+    const res = await BudgetCollection.find({ user }).select(
+      "_id title moneyAllocated moneySpent"
+    );
+
     return res;
   }
 
@@ -42,14 +39,15 @@ class Budget {
   // title funds to be added or removed; returns updated budget with expenses
   static async updateBudget(budgetID, title, addedMoney) {
     try {
-      await BudgetCollection.findByIdAndUpdate(budgetID, {
-        title,
-        $inc: { moneyAllocated: addedMoney },
-      }).populate({
-        path: "expenses",
-        select: "_id title transaction date",
-        sort: { date: -1 },
-      });
+      const res = await BudgetCollection.findByIdAndUpdate(
+        budgetID,
+        {
+          title,
+          $inc: { moneyAllocated: addedMoney },
+        },
+        { new: true }
+      ).select("title moneyAllocated moneySpent");
+      return res;
     } catch (err) {
       throw new BadRequestError(err.message);
     }
@@ -58,37 +56,30 @@ class Budget {
   // deletes a budget with a specific ID and specific user ID
   static async deleteBudget(id) {
     try {
-      await BudgetCollection.findByIdAndDelete(id);
+      let res = await BudgetCollection.findByIdAndDelete(id);
+      return res;
     } catch (err) {
       throw new BadRequestError(err.message);
     }
   }
 
   // adds new expense object id to budget expenses array in db
-  static async addExpense(budgetID, expenseID, transaction) {
+  static async addExpense(budgetID, transaction) {
     const res = await BudgetCollection.findByIdAndUpdate(
       budgetID,
-      { $push: { expenses: expenseID }, $inc: { moneySpent: transaction } },
+      { $inc: { moneySpent: transaction } },
       { new: true }
-    ).populate({
-      path: "expenses",
-      select: "_id title transaction date",
-      sort: { date: -1 },
-    });
+    ).select("title moneyAllocated moneySpent");
     return res;
   }
 
   // removes an expense id from budget expenses array field
-  static async removeExpense(budgetID, expenseID, transaction) {
+  static async removeExpense(budgetID, transaction) {
     const res = await BudgetCollection.findByIdAndUpdate(
       budgetID,
-      { $pull: { expenses: expenseID }, $inc: { moneySpent: -transaction } },
+      { $inc: { moneySpent: -transaction } },
       { new: true }
-    ).populate({
-      path: "expenses",
-      select: "_id title transaction date",
-      sort: { date: -1 },
-    });
+    ).select("title moneyAllocated moneySpent");
     return res;
   }
 }

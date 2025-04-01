@@ -34,7 +34,6 @@ router.post("/login", async function (req, res, next) {
       );
     }
     const user = await User.authenticate(username, password);
-    const recentExpenses = await Expenses.getUserRecentExpenses(user._id);
     const refreshToken = createRefreshToken(user);
     const accessToken = createAccessToken(user);
     res
@@ -54,7 +53,7 @@ router.post("/login", async function (req, res, next) {
         sameSite: "strict",
       })
       .status(200);
-    return res.status(200).json({ user, recentExpenses });
+    return res.status(200).json({ user });
   } catch (err) {
     return next(err);
   }
@@ -77,7 +76,6 @@ router.post("/register", async function (req, res, next) {
       newIncomes,
       newUser._id
     );
-    const recentExpenses = await Expenses.getUserRecentExpenses(newUser._id);
     await loadIncomeJobs();
     const refreshToken = createRefreshToken(newUser);
 
@@ -100,7 +98,7 @@ router.post("/register", async function (req, res, next) {
       .status(200);
     delete newUser.password;
     await sendConfirmEmail(email, username);
-    return res.status(201).json({ newUserWithIncomes, recentExpenses });
+    return res.status(201).json({ newUserWithIncomes });
   } catch (err) {
     return next(err);
   }

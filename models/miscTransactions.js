@@ -14,12 +14,12 @@ class Transaction {
     }
   }
 
-  // gets and returns a user's ten most recent transactions
+  // gets and returns a user's five most recent transactions
   static async getUserRecentTransactions(user) {
     try {
       const res = await TransactionCollection.find({ user })
         .select("_id title date transaction operation fromIncome")
-        .limit(10)
+        .limit(5)
         .sort({ date: -1 });
       return res;
     } catch (err) {

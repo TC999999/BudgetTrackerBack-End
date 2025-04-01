@@ -1,6 +1,5 @@
 const express = require("express");
 const { ensureCorrectUser } = require("../middleware/auth");
-
 const Transaction = require("../models/miscTransactions");
 
 const router = express.Router();

@@ -65,7 +65,6 @@ const BudgetSchema = new Schema(
       get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
     },
-    expenses: [{ type: Schema.Types.ObjectId, ref: "Expense" }],
   },
   { versionKey: false, toJSON: { getters: true }, id: false }
 );

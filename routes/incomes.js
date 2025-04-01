@@ -1,5 +1,5 @@
 const express = require("express");
-const { ensureLoggedIn } = require("../middleware/auth");
+const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const { scheduleIncomeJob } = require("../cron/scheduleIncomeJob");
 const { stopIncomeJob } = require("../cron/stopIncomeJob");
 const { updateIncomeJob } = require("../cron/updateIncomeJob");
@@ -35,44 +35,54 @@ router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
 
 // updates a single income with the specified id, also updates the correlated income job on the hashmap
 // of scheduled income jobs
-router.patch("/update/:id", ensureLoggedIn, async function (req, res, next) {
-  try {
-    const { id } = req.params;
-    await Income.getUserIncome(id, res.locals.user.id);
-    const { title, salary, cronString, readableUpdateTimeString } = req.body;
-    await Income.updateIncome(
-      id,
-      title,
-      salary,
-      cronString,
-      readableUpdateTimeString
-    );
-    await updateIncomeJob({
-      _id: id,
-      salary: salary.toFixed(2),
-      cronString,
-      user: res.locals.user.id,
-    });
-    const newUserIncomes = await Income.getUserIncomes(res.locals.user.id);
-    return res.status(200).json({ newUserIncomes });
-  } catch (err) {
-    return next(err);
+router.patch(
+  "/update/:incomeID",
+  ensureLoggedIn,
+  async function (req, res, next) {
+    try {
+      const { incomeID } = req.params;
+      await Income.getUserIncome(incomeID, res.locals.user.id);
+      const { title, salary, cronString, readableUpdateTimeString } = req.body;
+      await Income.updateIncome(
+        id,
+        title,
+        salary,
+        cronString,
+        readableUpdateTimeString
+      );
+      await updateIncomeJob({
+        _id: id,
+        salary: salary.toFixed(2),
+        cronString,
+        user: res.locals.user.id,
+      });
+      const newUserIncomes = await Income.getUserIncomes(res.locals.user.id);
+      return res.status(200).json({ newUserIncomes });
+    } catch (err) {
+      return next(err);
+    }
   }
-});
+);
 
 // deletes an income from the income collection in the db; also stops and removes the job from the income
 // job hashmap
-router.delete("/delete/:id", ensureLoggedIn, async function (req, res, next) {
-  try {
-    const { id } = req.params;
-    await Income.getUserIncome(id, res.locals.user.id);
-    await Income.deleteIncome(id);
-    stopIncomeJob(id);
-    const user = await User.removeIncome(id, res.locals.user.id);
-    return res.status(200).json({ newUserIncomes: user.incomes });
-  } catch (err) {
-    return next(err);
+router.delete(
+  "/delete/:incomeID",
+  ensureLoggedIn,
+  async function (req, res, next) {
+    try {
+      const { incomeID } = req.params;
+      await Income.getUserIncome(incomeID, res.locals.user.id);
+      await Income.deleteIncome(incomeID);
+      stopIncomeJob(id);
+      // const user = await User.removeIncome(incomeID, res.locals.user.id);
+      return res
+        .status(200)
+        .json({ message: `Income ${incomeID} deleted successfully!` });
+    } catch (err) {
+      return next(err);
+    }
   }
-});
+);
 
 module.exports = router;
