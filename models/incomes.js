@@ -47,14 +47,13 @@ class Income {
     readableUpdateTimeString
   ) {
     try {
-      let { lastReceived, nextReceived } = makeCronDates(cronString);
+      let { nextReceived } = makeCronDates(cronString);
       const res = await IncomeCollection.create({
         title,
         user,
         salary,
         cronString,
         readableUpdateTimeString,
-        lastReceived,
         nextReceived,
       });
       return res;
@@ -73,7 +72,7 @@ class Income {
     readableUpdateTimeString
   ) {
     try {
-      let { lastReceived, nextReceived } = makeCronDates(cronString);
+      let { nextReceived } = makeCronDates(cronString);
       const res = await IncomeCollection.findByIdAndUpdate(
         id,
         {
@@ -81,7 +80,6 @@ class Income {
           salary,
           cronString,
           readableUpdateTimeString,
-          lastReceived,
           nextReceived,
         },
         { new: true }

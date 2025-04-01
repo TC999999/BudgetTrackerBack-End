@@ -27,8 +27,7 @@ const IncomeSchema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     lastReceived: {
       type: Date,
-      default: Date.now,
-      required: true,
+      default: undefined,
     },
     nextReceived: {
       type: Date,

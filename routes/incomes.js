@@ -44,14 +44,14 @@ router.patch(
       await Income.getUserIncome(incomeID, res.locals.user.id);
       const { title, salary, cronString, readableUpdateTimeString } = req.body;
       await Income.updateIncome(
-        id,
+        incomeID,
         title,
         salary,
         cronString,
         readableUpdateTimeString
       );
       await updateIncomeJob({
-        _id: id,
+        _id: incomeID,
         salary: salary.toFixed(2),
         cronString,
         user: res.locals.user.id,
@@ -74,8 +74,8 @@ router.delete(
       const { incomeID } = req.params;
       await Income.getUserIncome(incomeID, res.locals.user.id);
       await Income.deleteIncome(incomeID);
-      stopIncomeJob(id);
-      // const user = await User.removeIncome(incomeID, res.locals.user.id);
+      stopIncomeJob(incomeID);
+      await User.removeIncome(incomeID, res.locals.user.id);
       return res
         .status(200)
         .json({ message: `Income ${incomeID} deleted successfully!` });
