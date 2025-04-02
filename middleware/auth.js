@@ -47,7 +47,9 @@ function ensureRefreshToken(req, res, next) {
 function ensureCorrectUser(req, res, next) {
   try {
     if (!res.locals.user) {
-      throw new UnauthorizedError("You must be logged in to access page");
+      throw new UnacceptableError(
+        "Your access session has expired. Please refresh and try again."
+      );
     } else if (res.locals.user.id !== req.params.id) {
       throw new UnauthorizedError("Incorrect User");
     }

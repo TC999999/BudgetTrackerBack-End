@@ -14,11 +14,11 @@ const makeCronDates = (cronString) => {
 };
 
 // when a new user is created, makes an array of incomes to be added to income collection in db with that
-// new user id and the next and previous dates those incomes were receieved
+// new user id and the next date each of those incomes are receieved
 const incomeMapUserID = (incomeArr, user) => {
   let newIncomeArr = incomeArr.map((v) => {
-    let { lastReceived, nextReceived } = makeCronDates(v.cronString);
-    return { ...v, user, lastReceived, nextReceived };
+    let { nextReceived } = makeCronDates(v.cronString);
+    return { ...v, user, nextReceived };
   });
   return newIncomeArr;
 };

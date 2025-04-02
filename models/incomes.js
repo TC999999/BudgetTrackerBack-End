@@ -56,7 +56,16 @@ class Income {
         readableUpdateTimeString,
         nextReceived,
       });
-      return res;
+
+      return {
+        _id: res._id,
+        title: res.title,
+        salary: res.salary,
+        cronString: res.cronString,
+        readableUpdateTimeString: res.readableUpdateTimeString,
+        nextReceived: res.nextReceived,
+      };
+      // return res;
     } catch (err) {
       throw new BadRequestError(err);
     }
@@ -65,6 +74,7 @@ class Income {
   // updates a single income on the db; can update its title, salary value, cron interval string and
   // readable interval string
   static async updateIncome(
+    user,
     id,
     title,
     salary,
@@ -73,8 +83,8 @@ class Income {
   ) {
     try {
       let { nextReceived } = makeCronDates(cronString);
-      const res = await IncomeCollection.findByIdAndUpdate(
-        id,
+      const res = await IncomeCollection.findOneAndUpdate(
+        { _id: id, user },
         {
           title,
           salary,
@@ -83,6 +93,8 @@ class Income {
           nextReceived,
         },
         { new: true }
+      ).select(
+        "cronString lastReceived nextReceived readableUpdateTimeString salary title"
       );
       return res;
     } catch (err) {
@@ -91,9 +103,10 @@ class Income {
   }
 
   // deletes a single income from the db with a specified id
-  static async deleteIncome(id) {
+  static async deleteIncome(id, user) {
     try {
-      await IncomeCollection.findByIdAndDelete(id);
+      let res = await IncomeCollection.findOneAndDelete({ _id: id, user });
+      return res;
     } catch (err) {
       throw new BadRequestError(err.message);
     }

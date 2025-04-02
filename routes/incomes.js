@@ -13,21 +13,21 @@ const router = express.Router();
 router.post("/add/new", ensureLoggedIn, async function (req, res, next) {
   try {
     const { title, salary, cronString, readableUpdateTimeString } = req.body;
-    const income = await Income.addIncome(
+    const newUserIncome = await Income.addIncome(
       title,
       res.locals.user.id,
       salary,
       cronString,
       readableUpdateTimeString
     );
-    const user = await User.addIncome(income._id, res.locals.user.id);
+    await User.addIncome(newUserIncome._id, res.locals.user.id);
     await scheduleIncomeJob({
-      _id: income._id,
+      _id: newUserIncome._id,
       salary: salary.toFixed(2),
       cronString,
       user: res.locals.user.id,
     });
-    return res.status(201).json({ newUserIncomes: user.incomes });
+    return res.status(201).json({ newUserIncome });
   } catch (err) {
     return next(err);
   }
@@ -41,9 +41,9 @@ router.patch(
   async function (req, res, next) {
     try {
       const { incomeID } = req.params;
-      await Income.getUserIncome(incomeID, res.locals.user.id);
       const { title, salary, cronString, readableUpdateTimeString } = req.body;
-      await Income.updateIncome(
+      let newUserIncome = await Income.updateIncome(
+        res.locals.user.id,
         incomeID,
         title,
         salary,
@@ -56,8 +56,7 @@ router.patch(
         cronString,
         user: res.locals.user.id,
       });
-      const newUserIncomes = await Income.getUserIncomes(res.locals.user.id);
-      return res.status(200).json({ newUserIncomes });
+      return res.status(200).json({ newUserIncome });
     } catch (err) {
       return next(err);
     }
@@ -72,13 +71,10 @@ router.delete(
   async function (req, res, next) {
     try {
       const { incomeID } = req.params;
-      await Income.getUserIncome(incomeID, res.locals.user.id);
-      await Income.deleteIncome(incomeID);
+      let delIncome = await Income.deleteIncome(incomeID, res.locals.user.id);
       stopIncomeJob(incomeID);
       await User.removeIncome(incomeID, res.locals.user.id);
-      return res
-        .status(200)
-        .json({ message: `Income ${incomeID} deleted successfully!` });
+      return res.status(200).json({ delIncome });
     } catch (err) {
       return next(err);
     }
