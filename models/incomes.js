@@ -56,7 +56,6 @@ class Income {
         readableUpdateTimeString,
         nextReceived,
       });
-
       return {
         _id: res._id,
         title: res.title,
@@ -65,7 +64,6 @@ class Income {
         readableUpdateTimeString: res.readableUpdateTimeString,
         nextReceived: res.nextReceived,
       };
-      // return res;
     } catch (err) {
       throw new BadRequestError(err);
     }

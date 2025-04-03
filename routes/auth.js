@@ -1,7 +1,6 @@
 const express = require("express");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/users");
-const Expenses = require("../models/expenses");
 const Income = require("../models/incomes");
 const { ACCESS_EXPIRATION_MS, REFRESH_EXPIRATION_MS } = require("../config");
 const {
@@ -9,9 +8,8 @@ const {
   createRefreshToken,
   verifyRefreshToken,
 } = require("../helpers/token");
-const { ensureLoggedIn } = require("../middleware/auth");
 const { loadIncomeJobs } = require("../cron/loadIncomeJobs");
-const { sendConfirmEmail } = require("../sendEmail");
+// const { sendConfirmEmail } = require("../sendEmail");
 
 const router = express.Router();
 
@@ -71,14 +69,9 @@ router.post("/register", async function (req, res, next) {
       email,
       totalAssets,
     });
-    const newIncomes = await Income.addManyIncomes(incomes, newUser._id);
-    const newUserWithIncomes = await User.addManyIncomes(
-      newIncomes,
-      newUser._id
-    );
+    await Income.addManyIncomes(incomes, newUser._id);
     await loadIncomeJobs();
     const refreshToken = createRefreshToken(newUser);
-
     res
       .cookie("refresh_token", refreshToken, {
         httpOnly: true,
@@ -98,7 +91,7 @@ router.post("/register", async function (req, res, next) {
       .status(200);
     delete newUser.password;
     await sendConfirmEmail(email, username);
-    return res.status(201).json({ newUserWithIncomes });
+    return res.status(201).json({ newUser });
   } catch (err) {
     return next(err);
   }

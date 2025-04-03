@@ -10,17 +10,10 @@ class User {
   // finds user with specified username and password as well as their budgets and incomes; returns an error
   // user is not found
   static async authenticate(username, password) {
-    const res = await UserCollection.findOne({ username })
-      .populate({
-        path: "budgets",
-        select: "_id title moneyAllocated moneySpent",
-      })
-      .populate({
-        path: "incomes",
-        select:
-          "_id title salary cronString readableUpdateTimeString lastReceived nextReceived",
-      });
-
+    const res = await UserCollection.findOne({ username }).populate({
+      path: "budgets",
+      select: "_id title moneyAllocated moneySpent",
+    });
     let user = res;
     if (user && (await bcrypt.compare(password, user.password))) {
       delete user._doc.password;
@@ -51,15 +44,10 @@ class User {
   // finds a user with the specified id as well as their all of their budgets and incomes
   static async get(userID) {
     const res = await UserCollection.findById(userID)
-      .select("username totalAssets _id budgets incomes")
+      .select("username totalAssets _id budgets")
       .populate({
         path: "budgets",
         select: "_id title moneyAllocated moneySpent",
-      })
-      .populate({
-        path: "incomes",
-        select:
-          "_id title salary cronString readableUpdateTimeString lastReceived nextReceived",
       });
 
     let user = res;
@@ -139,62 +127,6 @@ class User {
     } else {
       throw new BadRequestError();
     }
-  }
-
-  // adds many income ids to the incomes array in a single user document and returns the new user
-  // information
-  static async addManyIncomes(incomeIDs, user_id) {
-    if (incomeIDs.length === 0) return [];
-    const res = await UserCollection.findByIdAndUpdate(
-      user_id,
-      {
-        $push: { incomes: { $each: [...incomeIDs] } },
-      },
-      { new: true }
-    ).populate({
-      path: "incomes",
-      select:
-        "_id title salary cronString readableUpdateTimeString lastReceived nextReceived",
-    });
-    return res;
-  }
-
-  // adds a single income id to the incomes array in a single user document and returns the new user
-  // information
-  static async addIncome(incomeID, user_id) {
-    const res = await UserCollection.findByIdAndUpdate(
-      user_id,
-      {
-        $push: { incomes: incomeID },
-      },
-      { new: true }
-    )
-      .select("incomes")
-      .populate({
-        path: "incomes",
-        select:
-          "_id title salary cronString readableUpdateTimeString lastReceived nextReceived",
-      });
-    return res;
-  }
-
-  // removes a single income id to the incomes array in a single user document and returns the new user
-  // information
-  static async removeIncome(incomeID, user_id) {
-    const res = await UserCollection.findByIdAndUpdate(
-      user_id,
-      {
-        $pull: { incomes: incomeID },
-      },
-      { new: true }
-    )
-      .select("incomes")
-      .populate({
-        path: "incomes",
-        select:
-          "title salary cronString readableUpdateTimeString lastReceived nextReceived",
-      });
-    return res;
   }
 
   // updates the total assets value of a user with a specified username and returns the new user infomration
