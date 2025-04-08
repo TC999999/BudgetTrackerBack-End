@@ -2,18 +2,17 @@ const express = require("express");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const Budget = require("../models/budgets");
 const Expenses = require("../models/expenses");
-const Transaction = require("../models/miscTransactions");
 
 const router = express.Router();
 
 // gets all expenses made using funds from a particular budget
 router.get(
-  "/budget/:budgetID",
-  ensureLoggedIn,
+  "/budget/:budgetID/user/:id",
+  ensureCorrectUser,
   async function (req, res, next) {
     try {
-      const { budgetID } = req.params;
-      let expenses = await Expenses.getAllBudgetExpenses(budgetID);
+      const { budgetID, id } = req.params;
+      let expenses = await Expenses.getAllBudgetExpenses(budgetID, id);
       return res.status(200).json({
         expenses,
       });
@@ -41,24 +40,24 @@ router.get(
 // adds new expense to expense collection in db, adds expense id to user and budget expenses array field.
 // returns new lists of user budgets and recent expenses
 router.post(
-  "/add/budget/:budgetID",
-  ensureLoggedIn,
+  "/add/budget/:budgetID/user/:id",
+  ensureCorrectUser,
   async function (req, res, next) {
     try {
-      const { budgetID } = req.params;
+      const { budgetID, id } = req.params;
       const { title, transaction, date } = req.body;
-      await Budget.findUserBudget(budgetID, res.locals.user.id);
-      const newBudgetExpense = await Expenses.addExpense(
+      const spentMoney = await Budget.addExpense(budgetID, id, transaction);
+      const newExpense = await Expenses.addExpense(
         title,
         transaction,
         date,
         budgetID,
         res.locals.user.id
       );
-      const newUserBudget = await Budget.addExpense(budgetID, transaction);
+
       return res.status(201).json({
-        newBudgetExpense,
-        newUserBudget,
+        newExpense,
+        spentMoney,
       });
     } catch (err) {
       return next(err);
@@ -68,19 +67,18 @@ router.post(
 
 // deletes a single expense
 router.delete(
-  "/delete/:expenseID",
-  ensureLoggedIn,
+  "/delete/:expenseID/budget/:budgetID/user/:id",
+  ensureCorrectUser,
   async function (req, res, next) {
     try {
-      const { expenseID } = req.params;
-      const { budgetID, transaction } = req.body;
-      await Expenses.findUserAndBudgetExpense(
-        expenseID,
+      const { expenseID, budgetID, id } = req.params;
+      const { transaction } = req.body;
+      const newUserBudget = await Budget.removeExpense(
         budgetID,
-        res.locals.user.id
+        id,
+        transaction
       );
       const delExpense = await Expenses.deleteExpense(expenseID);
-      const newUserBudget = await Budget.removeExpense(budgetID, transaction);
       return res.status(200).json({
         delExpense,
         newUserBudget,

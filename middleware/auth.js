@@ -21,7 +21,7 @@ function ensureLoggedIn(req, res, next) {
   try {
     if (!res.locals.user) {
       throw new UnacceptableError(
-        "Your access session has expired. Please refresh and try again."
+        "Your access session has expired. Please refresh the page and try again."
       );
     }
     return next();
@@ -33,9 +33,10 @@ function ensureLoggedIn(req, res, next) {
 // if user is not found is res.locals, refuses request and sends an error
 function ensureRefreshToken(req, res, next) {
   try {
-    if (!res.locals.user) {
+    const token = req.cookies.refresh_token;
+    if (!token) {
       throw new UnauthorizedError(
-        "You are logged out. Please log in to your account and try again."
+        "Your refresh session has expired. Please log in to your account and try again."
       );
     }
     return next();
@@ -43,15 +44,18 @@ function ensureRefreshToken(req, res, next) {
     return next(err);
   }
 }
-// if user id in res.locals and in url parameters don't match, an error is thrown
+// if there is not an access token, return unacceptable error. If user id in access token and in url parameters don't match,
+// returns unauthorized error
 function ensureCorrectUser(req, res, next) {
   try {
     if (!res.locals.user) {
       throw new UnacceptableError(
-        "Your access session has expired. Please refresh and try again."
+        "Your access session has expired. Please refresh the page and try again."
       );
     } else if (res.locals.user.id !== req.params.id) {
-      throw new UnauthorizedError("Incorrect User");
+      throw new UnauthorizedError(
+        "The user id in the url parameters does not match the current user's id."
+      );
     }
     return next();
   } catch (err) {

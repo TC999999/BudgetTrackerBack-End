@@ -1,5 +1,8 @@
-const { BadRequestError, UnauthorizedError } = require("../expressError");
-const { BudgetCollection } = require("../schemas/budgets");
+const {
+  BadRequestError,
+  UnauthorizedError,
+  NotFoundError,
+} = require("../expressError");
 const { ExpenseCollection } = require("../schemas/expenses");
 
 // class for CRUD routes for expesne collection in db
@@ -48,19 +51,19 @@ class Expenses {
         .populate({ path: "budget", select: "-_id title" });
       return res;
     } catch (err) {
-      throw new BadRequestError(err.message);
+      throw new NotFoundError(err.message);
     }
   }
 
   // gets and returns all of a budget's expenses
-  static async getAllBudgetExpenses(budget) {
+  static async getAllBudgetExpenses(budget, user) {
     try {
-      const res = await ExpenseCollection.find({ budget })
+      const res = await ExpenseCollection.find({ budget, user })
         .select("_id title transaction date")
         .sort({ date: -1 });
       return res;
     } catch (err) {
-      throw new BadRequestError(err.message);
+      throw new NotFoundError("Could not find expenses for this budget");
     }
   }
 
@@ -89,9 +92,9 @@ class Expenses {
   }
 
   // deletes multiple expenses with specific budget id
-  static async deleteManyExpenses(budgetID) {
+  static async deleteManyExpenses(budgetID, user) {
     try {
-      await ExpenseCollection.deleteMany({ budget: budgetID });
+      await ExpenseCollection.deleteMany({ budget: budgetID, user });
     } catch (err) {
       throw new BadRequestError(err.message);
     }

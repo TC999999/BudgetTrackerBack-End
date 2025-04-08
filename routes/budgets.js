@@ -6,6 +6,33 @@ const Expense = require("../models/expenses");
 
 const router = express.Router();
 
+// gets all of a single user's budgets
+router.get("/all/user/:id", ensureCorrectUser, async function (req, res, next) {
+  try {
+    const { id } = req.params;
+    const budgets = await Budget.getAllUserBudgets(id);
+    return res.status(200).json({ budgets });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// gets a single user budget
+router.get(
+  "/:budgetID/user/:id",
+  ensureCorrectUser,
+  async function (req, res, next) {
+    try {
+      const { budgetID, id } = req.params;
+      const budget = await Budget.findUserBudget(budgetID, id);
+      const expenses = await Expense.getAllBudgetExpenses(budgetID, id);
+      return res.status(200).json({ budget, expenses });
+    } catch (err) {
+      return next(err);
+    }
+  }
+);
+
 // adds a new budget with a title and allocated funds to db as well as reduces user's total assets by
 // allocated funds value
 router.post(
@@ -13,12 +40,9 @@ router.post(
   ensureCorrectUser,
   async function (req, res, next) {
     try {
+      const { id } = req.params;
       const { title, moneyAllocated } = req.body;
-      const budget = await Budget.addBudget(
-        title,
-        moneyAllocated,
-        res.locals.user.id
-      );
+      const budget = await Budget.addBudget(title, moneyAllocated, id);
       const user = await User.addBudget(
         res.locals.user.id,
         moneyAllocated,
@@ -40,18 +64,15 @@ router.patch(
   ensureCorrectUser,
   async function (req, res, next) {
     try {
-      const { budgetID } = req.params;
-      await Budget.findUserBudget(budgetID, res.locals.user.id);
+      const { budgetID, id } = req.params;
       const { title, addedMoney } = req.body;
       let newUserBudget = await Budget.updateBudget(
         budgetID,
+        id,
         title,
         addedMoney
       );
-      const { totalAssets } = await User.updateAssetsAndBudgets(
-        res.locals.user.id,
-        addedMoney
-      );
+      const { totalAssets } = await User.updateAssetsForBudget(id, addedMoney);
       return res.status(200).json({
         newUserBudget,
         newAssets: totalAssets,
@@ -65,21 +86,16 @@ router.patch(
 // deletes budget with specific id as well as any expenses from that budget and id from user budget array.
 // returns new user info and new recent expenses without the deleted expenses
 router.delete(
-  "/delete/:budgetID",
+  "/delete/:budgetID/user/:id",
   ensureLoggedIn,
   async function (req, res, next) {
     try {
-      const { budgetID } = req.params;
-      await Budget.findUserBudget(budgetID, res.locals.user.id);
+      const { budgetID, id } = req.params;
       const { addBackToAssets } = req.body;
-      await Expense.deleteManyExpenses(budgetID);
-      let delBudget = await Budget.deleteBudget(budgetID);
-      const { totalAssets } = await User.deleteBudget(
-        res.locals.user.id,
-        addBackToAssets,
-        budgetID
-      );
-      return res.status(200).json({ delBudget, totalAssets });
+      await Expense.deleteManyExpenses(budgetID, id);
+      await Budget.deleteBudget(budgetID, id);
+      const { totalAssets } = await User.deleteBudget(id, addBackToAssets);
+      return res.status(200).json({ totalAssets });
     } catch (err) {
       return next(err);
     }

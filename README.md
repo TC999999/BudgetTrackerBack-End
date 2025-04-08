@@ -1,4 +1,4 @@
-# Budget Planner - Backend
+# Personal Piggybank - Backend
 
 ## Frontend Service
 

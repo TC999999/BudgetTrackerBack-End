@@ -10,10 +10,9 @@ class User {
   // finds user with specified username and password as well as their budgets and incomes; returns an error
   // user is not found
   static async authenticate(username, password) {
-    const res = await UserCollection.findOne({ username }).populate({
-      path: "budgets",
-      select: "_id title moneyAllocated moneySpent",
-    });
+    const res = await UserCollection.findOne({ username }).select(
+      "username password totalAssets _id"
+    );
     let user = res;
     if (user && (await bcrypt.compare(password, user.password))) {
       delete user._doc.password;
@@ -43,12 +42,9 @@ class User {
 
   // finds a user with the specified id as well as their all of their budgets and incomes
   static async get(userID) {
-    const res = await UserCollection.findById(userID)
-      .select("username totalAssets _id budgets")
-      .populate({
-        path: "budgets",
-        select: "_id title moneyAllocated moneySpent",
-      });
+    const res = await UserCollection.findById(userID).select(
+      "username totalAssets _id"
+    );
 
     let user = res;
     if (!user) throw new NotFoundError(`User of ${userID} does not exist`);
@@ -139,45 +135,37 @@ class User {
     return res;
   }
 
-  // updates the total assets value of a user with a specified username and returns the new user information
-  // with updates to budgets as well
-  static async updateAssetsAndBudgets(user, addedAssets) {
+  // updates the total value of the user's savings balance when updating a budget
+  static async updateAssetsForBudget(user, addedAssets) {
     const res = await UserCollection.findByIdAndUpdate(
       user,
       { $inc: { totalAssets: -addedAssets } },
+      { new: true }
+    ).select("totalAssets");
+    return res;
+  }
+
+  // adds a single budget id to a user document with a specified username, updates their total assets value,
+  // and returns the new user information
+  static async addBudget(user, moneyAllocated) {
+    const res = await UserCollection.findByIdAndUpdate(
+      user,
+      {
+        $inc: { totalAssets: -moneyAllocated },
+      },
       { new: true }
     ).select("totalAssets");
 
     return res;
   }
 
-  // adds a single budget id to a user document with a specified username, updates their total assets value,
-  // and returns the new user information
-  static async addBudget(user, moneyAllocated, newBudgetID) {
-    const res = await UserCollection.findByIdAndUpdate(
-      user,
-      {
-        $push: { budgets: newBudgetID },
-        $inc: { totalAssets: -moneyAllocated },
-      },
-      { new: true }
-    )
-      .select("totalAssets budgets")
-      .populate({
-        path: "budgets",
-        select: "_id title moneyAllocated moneySpent",
-      });
-    return res;
-  }
-
   // removes a single budget id to a user document with a specified username, updates their total assets value,
   // and returns the new user information
-  static async deleteBudget(user, addBackToAssets, budgetID) {
+  static async deleteBudget(user, addBackToAssets) {
     const res = await UserCollection.findByIdAndUpdate(
       user,
       {
         $inc: { totalAssets: addBackToAssets },
-        $pull: { budgets: budgetID },
       },
       { new: true }
     ).select("totalAssets");

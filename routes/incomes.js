@@ -1,5 +1,5 @@
 const express = require("express");
-const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
+const { ensureCorrectUser } = require("../middleware/auth");
 const { scheduleIncomeJob } = require("../cron/scheduleIncomeJob");
 const { stopIncomeJob } = require("../cron/stopIncomeJob");
 const { updateIncomeJob } = require("../cron/updateIncomeJob");
@@ -35,7 +35,7 @@ router.post(
   }
 );
 
-router.get("/user/:id", ensureLoggedIn, async function (req, res, next) {
+router.get("/user/:id", ensureCorrectUser, async function (req, res, next) {
   try {
     const { id } = req.params;
     const userIncomes = await Income.getUserIncomes(id);
