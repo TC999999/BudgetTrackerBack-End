@@ -3,15 +3,27 @@ const { BudgetCollection } = require("../schemas/budgets");
 
 // class for CRUD operations for budgets stored in db
 class Budget {
-  // finds a budget that contains both a specified budget id and user id, throws an error if none are found
+  // finds a budget that contains both a specified budget id and user id,
+  // throws an error if none are found
   static async findUserBudget(id, user) {
-    const res = await BudgetCollection.findOne({ _id: id, user }).select(
-      "_id title moneyAllocated moneySpent"
-    );
-    return res;
+    try {
+      const res = await BudgetCollection.findOne({ _id: id, user }).select(
+        "_id title moneyAllocated moneySpent"
+      );
+      if (!res) {
+        throw new NotFoundError(
+          "The budget you are trying to find either does not exist or does not belong to you!"
+        );
+      }
+      return res;
+    } catch (err) {
+      throw new NotFoundError(
+        "The budget you are trying to find either does not exist or does not belong to you!"
+      );
+    }
   }
 
-  // returns a single budgets with a specific user ID and the expenses paid with their funds
+  // returns all of a single user's budgets from the db
   static async getAllUserBudgets(user) {
     const res = await BudgetCollection.find({ user }).select(
       "_id title moneyAllocated moneySpent"
@@ -19,7 +31,7 @@ class Budget {
     return res;
   }
 
-  // adds a new budget to db with a title, allocated funds, and user id
+  // adds a new budget to db with a title, allocated funds, and user id; returns new budget data
   static async addBudget(title, moneyAllocated, user) {
     try {
       const res = await BudgetCollection.create({
@@ -38,16 +50,8 @@ class Budget {
     }
   }
 
-  // returns all budgets with a specific user ID and the expenses paid with their funds
-  static async getNewUserBudgets(user) {
-    const res = await BudgetCollection.find({ user }).select(
-      "_id title moneyAllocated moneySpent"
-    );
-    return res;
-  }
-
-  // updates a budget both with a specific ID and specific user ID; parameters to be updated include its
-  // title funds to be added or removed; returns updated budget
+  // updates a budget both with a specific ID and specific user ID; parameters to be updated
+  // include its title, and funds to be added or removed; returns updated budget
   static async updateBudget(budgetID, user, title, addedMoney) {
     try {
       const res = await BudgetCollection.findOneAndUpdate(
@@ -64,7 +68,7 @@ class Budget {
     }
   }
 
-  // deletes a budget with a specific ID and specific user ID
+  // deletes a budget with a specific ID and specific user ID and returns data of deleted budget
   static async deleteBudget(id, user) {
     try {
       let res = await BudgetCollection.findOneAndDelete({ _id: id, user });
@@ -74,7 +78,8 @@ class Budget {
     }
   }
 
-  // adds new expense object id to budget expenses array in db
+  // adds to the total money spent from the allocated funds when an expense is made; returns the
+  // updated value of money spent
   static async addExpense(budgetID, user, transaction) {
     const res = await BudgetCollection.findOneAndUpdate(
       { _id: budgetID, user },
@@ -84,7 +89,8 @@ class Budget {
     return res;
   }
 
-  // removes an expense id from budget expenses array field
+  // removes to the total money spent from the allocated funds when an expense is made; returns the
+  // updated value of money spent
   static async removeExpense(budgetID, user, transaction) {
     const res = await BudgetCollection.findOneAndUpdate(
       { _id: budgetID, user },

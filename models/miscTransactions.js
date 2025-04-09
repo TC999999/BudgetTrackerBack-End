@@ -1,8 +1,9 @@
-const { BadRequestError, UnauthorizedError } = require("../expressError");
+const { BadRequestError } = require("../expressError");
 const { TransactionCollection } = require("../schemas/miscTransactions");
 
 // class for CRUD operations for miscellaneous transactions stored in db
 class Transaction {
+  // returns all of a single user's transactions
   static async getUserTransactions(user) {
     try {
       const res = await TransactionCollection.find({ user })
@@ -14,7 +15,7 @@ class Transaction {
     }
   }
 
-  // gets and returns a user's five most recent transactions
+  // gets and returns a single user's five most recent transactions
   static async getUserRecentTransactions(user) {
     try {
       const res = await TransactionCollection.find({ user })

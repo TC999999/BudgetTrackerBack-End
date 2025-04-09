@@ -1,5 +1,5 @@
 const express = require("express");
-const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
+const { ensureCorrectUser } = require("../middleware/auth");
 const Budget = require("../models/budgets");
 const Expenses = require("../models/expenses");
 
@@ -65,7 +65,8 @@ router.post(
   }
 );
 
-// deletes a single expense
+// deletes a single expense; returns deleted expense data and new value of budget with expense
+// spendings added to previous value
 router.delete(
   "/delete/:expenseID/budget/:budgetID/user/:id",
   ensureCorrectUser,

@@ -7,8 +7,8 @@ const { sendResetEmail } = require("../sendEmail");
 
 // class for CRUD actions for users collection in db
 class User {
-  // finds user with specified username and password as well as their budgets and incomes; returns an error
-  // user is not found
+  // finds user with specified username and password as well as their budgets and incomes; returns
+  // user information without password or returns an error if user is not found
   static async authenticate(username, password) {
     const res = await UserCollection.findOne({ username }).select(
       "username password totalAssets _id"
@@ -21,7 +21,8 @@ class User {
     throw new NotFoundError("Invalid username/password");
   }
 
-  // adds initial user data to users collection in db; throws error if strings don't have proper length
+  // when a user first signs up, adds initial user data to users collection in db;
+  // returns new user data or throws error if strings don't have proper length
   static async register({ username, password, email, totalAssets }) {
     try {
       const res = await UserCollection.create({
@@ -40,7 +41,7 @@ class User {
     }
   }
 
-  // finds a user with the specified id as well as their all of their budgets and incomes
+  // finds a user with the specified id and returns their information; throws an error if user is not found
   static async get(userID) {
     const res = await UserCollection.findById(userID).select(
       "username totalAssets _id"
@@ -54,7 +55,7 @@ class User {
 
   // finds a user with specified username and email address; if found, creates a one time verification
   // code and adds a document with the username, email, and code to the collection and an email to the
-  // specified adress; if not found, returns an error
+  // specified address; if not found, returns an error
   static async getUserTwoFactor(username, email) {
     const res = await UserCollection.findOne({
       username,
@@ -125,7 +126,8 @@ class User {
     }
   }
 
-  // updates the total assets value of a user with a specified username and returns the new user infomration
+  // updates the total assets value of a user with a specified username and returns
+  // the new user total savings value
   static async updateAssets(user, addedAssets) {
     const res = await UserCollection.findByIdAndUpdate(
       user,
@@ -135,7 +137,8 @@ class User {
     return res;
   }
 
-  // updates the total value of the user's savings balance when updating a budget
+  // updates the total value of the user's savings when updating a budget; returns the new
+  // user total savings value
   static async updateAssetsForBudget(user, addedAssets) {
     const res = await UserCollection.findByIdAndUpdate(
       user,
@@ -145,8 +148,8 @@ class User {
     return res;
   }
 
-  // adds a single budget id to a user document with a specified username, updates their total assets value,
-  // and returns the new user information
+  // updates the total value of a user's savings when creating a budget; returns the new
+  // user total savings value
   static async addBudget(user, moneyAllocated) {
     const res = await UserCollection.findByIdAndUpdate(
       user,
@@ -159,8 +162,8 @@ class User {
     return res;
   }
 
-  // removes a single budget id to a user document with a specified username, updates their total assets value,
-  // and returns the new user information
+  // updates the total value of a user's savings when deleting a budget; returns the new
+  // user total savings value
   static async deleteBudget(user, addBackToAssets) {
     const res = await UserCollection.findByIdAndUpdate(
       user,

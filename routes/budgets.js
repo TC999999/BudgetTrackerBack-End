@@ -6,7 +6,7 @@ const Expense = require("../models/expenses");
 
 const router = express.Router();
 
-// gets all of a single user's budgets
+// retrieves all of a single user's budgets from the db
 router.get("/all/user/:id", ensureCorrectUser, async function (req, res, next) {
   try {
     const { id } = req.params;
@@ -17,7 +17,7 @@ router.get("/all/user/:id", ensureCorrectUser, async function (req, res, next) {
   }
 });
 
-// gets a single user budget
+// retrieves a single budget for a gets a single user from the db
 router.get(
   "/:budgetID/user/:id",
   ensureCorrectUser,
@@ -25,8 +25,7 @@ router.get(
     try {
       const { budgetID, id } = req.params;
       const budget = await Budget.findUserBudget(budgetID, id);
-      const expenses = await Expense.getAllBudgetExpenses(budgetID, id);
-      return res.status(200).json({ budget, expenses });
+      return res.status(200).json({ budget });
     } catch (err) {
       return next(err);
     }
@@ -34,7 +33,7 @@ router.get(
 );
 
 // adds a new budget with a title and allocated funds to db as well as reduces user's total assets by
-// allocated funds value
+// allocated funds value, returns the new budget and updated user savings value to the client side
 router.post(
   "/add/user/:id",
   ensureCorrectUser,
@@ -58,7 +57,8 @@ router.post(
 );
 
 // updates a user's budget (title and allocated funds) on db as well as update user's total assets by
-// added or reduced funds value
+// added or reduced funds value; returns the updated budget date and updated user savings value
+// to the client side
 router.patch(
   "/update/:budgetID/user/:id",
   ensureCorrectUser,
@@ -84,7 +84,7 @@ router.patch(
 );
 
 // deletes budget with specific id as well as any expenses from that budget and id from user budget array.
-// returns new user info and new recent expenses without the deleted expenses
+// returns the updated user savings value to the client side
 router.delete(
   "/delete/:budgetID/user/:id",
   ensureLoggedIn,

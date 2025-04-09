@@ -36,7 +36,7 @@ function ensureRefreshToken(req, res, next) {
     const token = req.cookies.refresh_token;
     if (!token) {
       throw new UnauthorizedError(
-        "Your refresh session has expired. Please log in to your account and try again."
+        "You currently do not have a refresh session. Please log in to your account and try again."
       );
     }
     return next();
@@ -48,13 +48,20 @@ function ensureRefreshToken(req, res, next) {
 // returns unauthorized error
 function ensureCorrectUser(req, res, next) {
   try {
-    if (!res.locals.user) {
+    if (!req.cookies.refresh_token) {
+      throw new UnauthorizedError(
+        "You currently do not have a refresh session. Please log in to your account and try again."
+      );
+    } else if (req.cookies.refresh_token && !res.locals.user) {
       throw new UnacceptableError(
         "Your access session has expired. Please refresh the page and try again."
       );
-    } else if (res.locals.user.id !== req.params.id) {
+    } else if (
+      req.cookies.refresh_token &&
+      res.locals.user.id !== req.params.id
+    ) {
       throw new UnauthorizedError(
-        "The user id in the url parameters does not match the current user's id."
+        "You are attempting to retrieve data from another user or one that does not exist!"
       );
     }
     return next();

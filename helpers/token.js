@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { UnauthorizedError } = require("../expressError");
 const {
   REFRESH_SECRET_KEY,
   REFRESH_EXPIRATION,
