@@ -9,7 +9,7 @@ const {
 
 // creates refresh JWT
 function createRefreshToken(user) {
-  let payload = { username: user.username, id: user._id };
+  let payload = { id: user._id };
   return jwt.sign(payload, REFRESH_SECRET_KEY, {
     expiresIn: REFRESH_EXPIRATION,
   });
@@ -17,7 +17,7 @@ function createRefreshToken(user) {
 
 // creates access JWT
 function createAccessToken(user) {
-  let payload = { username: user.username, id: user._id };
+  let payload = { id: user._id };
   return jwt.sign(payload, ACCESS_SECRET_KEY, {
     expiresIn: ACCESS_EXPIRATION,
   });
@@ -32,7 +32,7 @@ function verifyRefreshToken(refreshToken, res) {
       return false;
     }
     if (decoded) {
-      const user = { username: decoded.username, _id: decoded.id };
+      const user = { _id: decoded.id };
       const accessToken = createAccessToken(user);
       res
         .cookie("access_token", accessToken, {

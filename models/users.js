@@ -31,6 +31,11 @@ class User {
         email,
         totalAssets,
       });
+      return {
+        _id: res._id,
+        username: res.username,
+        totalAssets: res.totalAssets,
+      };
       return res;
     } catch (err) {
       if (err.name === "ValidationError") {
@@ -46,7 +51,6 @@ class User {
     const res = await UserCollection.findById(userID).select(
       "username totalAssets _id"
     );
-
     let user = res;
     if (!user) throw new NotFoundError(`User of ${userID} does not exist`);
 

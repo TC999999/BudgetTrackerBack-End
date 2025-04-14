@@ -2,7 +2,6 @@ const express = require("express");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const User = require("../models/users");
 const Transaction = require("../models/miscTransactions");
-
 const router = express.Router();
 
 // finds and returns data from the user document with the specified user id as well as any recent expenses
@@ -40,7 +39,6 @@ router.patch("/update/assets", ensureLoggedIn, async function (req, res, next) {
       operation,
       date
     );
-
     return res.status(200).json({ user });
   } catch (err) {
     return next(err);

@@ -9,7 +9,7 @@ const {
   verifyRefreshToken,
 } = require("../helpers/token");
 const { loadIncomeJobs } = require("../cron/loadIncomeJobs");
-// const { sendConfirmEmail } = require("../sendEmail");
+const { sendConfirmEmail } = require("../sendEmail");
 
 const router = express.Router();
 
@@ -89,7 +89,6 @@ router.post("/register", async function (req, res, next) {
         sameSite: "strict",
       })
       .status(200);
-    delete newUser.password;
     await sendConfirmEmail(email, username);
     return res.status(201).json({ newUser });
   } catch (err) {
@@ -102,7 +101,7 @@ router.post("/confirmUserInfo", async function (req, res, next) {
   try {
     const { username, email } = req.body;
     const userExists = await User.getUserTwoFactor(username, email);
-    return res.status(200).json(userExists);
+    return res.status(201).json(userExists);
   } catch (err) {
     return next(err);
   }
@@ -113,7 +112,7 @@ router.post("/confirmOTP", async function (req, res, next) {
   try {
     const { username, email, code } = req.body;
     await User.confirmUserCode(username, email, code);
-    return res.status(200).json({ message: "verification code confirmed!" });
+    return res.status(201).json({ message: "verification code confirmed!" });
   } catch (err) {
     return next(err);
   }

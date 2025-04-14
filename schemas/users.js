@@ -57,7 +57,6 @@ const UserSchema = new Schema(
       get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
     },
-    budgets: [{ type: Schema.Types.ObjectId, ref: "Budget" }],
   },
   { versionKey: false, toJSON: { getters: true }, id: false }
 );
