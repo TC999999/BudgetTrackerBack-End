@@ -2,16 +2,17 @@ const jwt = require("jsonwebtoken");
 const {
   REFRESH_SECRET_KEY,
   REFRESH_EXPIRATION,
+  REFRESH_EXPIRATION_NO_TRUST,
   ACCESS_SECRET_KEY,
   ACCESS_EXPIRATION,
   ACCESS_EXPIRATION_MS,
 } = require("../config");
 
 // creates refresh JWT
-function createRefreshToken(user) {
+function createRefreshToken(user, trusted) {
   let payload = { id: user._id };
   return jwt.sign(payload, REFRESH_SECRET_KEY, {
-    expiresIn: REFRESH_EXPIRATION,
+    expiresIn: trusted ? REFRESH_EXPIRATION : REFRESH_EXPIRATION_NO_TRUST,
   });
 }
 

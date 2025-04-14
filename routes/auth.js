@@ -2,7 +2,11 @@ const express = require("express");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/users");
 const Income = require("../models/incomes");
-const { ACCESS_EXPIRATION_MS, REFRESH_EXPIRATION_MS } = require("../config");
+const {
+  ACCESS_EXPIRATION_MS,
+  REFRESH_EXPIRATION_MS,
+  REFRESH_EXPIRATION_NO_TRUST_MS,
+} = require("../config");
 const {
   createAccessToken,
   createRefreshToken,
@@ -15,24 +19,28 @@ const router = express.Router();
 
 // whenever the page refreshes, checks for a refresh token and creates a new access token and sets it in
 // an http-only cookie, lets the front-end know that the token exists (does not send token through to
-// front end)
+// front end); if no refresh token exists, but an access token exists in cookies, clears access token from cookies
 router.get("/token", async function (req, res, next) {
   const token = verifyRefreshToken(req.cookies.refresh_token, res);
+  if (!token && req.cookies.access_token) {
+    res.clearCookie("access_token").status(200);
+  }
   return res.json({ token });
 });
 
 // authenticates the user with their username and password, retrieves the user's most recent expenses,
-// sets both the refresh and access tokens into cookies, and sends user data back to frontend
+// sets both the refresh and access tokens into cookies, and sends user data back to frontend; if the user sends
+// that they trust the device they are using, the tokens will have a longer time before expiration
 router.post("/login", async function (req, res, next) {
   try {
-    const { username, password } = req.body;
+    const { username, password, trusted } = req.body;
     if (!username || !password) {
       throw new BadRequestError(
         "Both username and password fields must be filled!"
       );
     }
     const user = await User.authenticate(username, password);
-    const refreshToken = createRefreshToken(user);
+    const refreshToken = createRefreshToken(user, trusted);
     const accessToken = createAccessToken(user);
     res
       .cookie("access_token", accessToken, {
@@ -47,7 +55,9 @@ router.post("/login", async function (req, res, next) {
       .cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: true,
-        maxAge: REFRESH_EXPIRATION_MS,
+        maxAge: trusted
+          ? REFRESH_EXPIRATION_MS
+          : REFRESH_EXPIRATION_NO_TRUST_MS,
         sameSite: "strict",
       })
       .status(200);

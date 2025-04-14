@@ -17,11 +17,11 @@ const REFRESH_SECRET_KEY = process.env.REFRESH_SECRET_KEY;
 // string time until refresh JWT expires
 const REFRESH_EXPIRATION = "1d";
 
+// string time until refresh JWT expires on untrusted devices
+const REFRESH_EXPIRATION_NO_TRUST = "1hr";
+
 // time until refresh JWT expires in milliseconds (24 hours)
 const REFRESH_EXPIRATION_MS = 24 * 60 * 60 * 1000;
-
-// string time until refresh JWT expires on untrusted devices
-const REFRESH_EXPIRATION_NO_TRUST = "1h";
 
 // time until refresh JWT expires on untrusted devices in milliseconds (1 hour)
 const REFRESH_EXPIRATION_NO_TRUST_MS = 60 * 60 * 1000;
@@ -53,5 +53,7 @@ module.exports = {
   ACCESS_EXPIRATION_MS,
   REFRESH_SECRET_KEY,
   REFRESH_EXPIRATION,
+  REFRESH_EXPIRATION_NO_TRUST,
   REFRESH_EXPIRATION_MS,
+  REFRESH_EXPIRATION_NO_TRUST_MS,
 };
