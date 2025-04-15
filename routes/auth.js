@@ -43,15 +43,6 @@ router.post("/login", async function (req, res, next) {
     const refreshToken = createRefreshToken(user, trusted);
     const accessToken = createAccessToken(user);
     res
-      .cookie("access_token", accessToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: ACCESS_EXPIRATION_MS,
-        sameSite: "strict",
-      })
-      .status(200);
-
-    res
       .cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: true,
@@ -61,6 +52,15 @@ router.post("/login", async function (req, res, next) {
         sameSite: "strict",
       })
       .status(200);
+    res
+      .cookie("access_token", accessToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: ACCESS_EXPIRATION_MS,
+        sameSite: "strict",
+      })
+      .status(200);
+
     return res.status(200).json({ user });
   } catch (err) {
     return next(err);
@@ -72,7 +72,8 @@ router.post("/login", async function (req, res, next) {
 // into cookies, returns the user's information to the frontend
 router.post("/register", async function (req, res, next) {
   try {
-    let { username, password, email, totalAssets, incomes } = req.body;
+    const { username, password, email, totalAssets, incomes, trusted } =
+      req.body;
     const newUser = await User.register({
       username,
       password,
@@ -81,12 +82,14 @@ router.post("/register", async function (req, res, next) {
     });
     await Income.addManyIncomes(incomes, newUser._id);
     await loadIncomeJobs();
-    const refreshToken = createRefreshToken(newUser);
+    const refreshToken = createRefreshToken(newUser, trusted);
     res
       .cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: true,
-        maxAge: REFRESH_EXPIRATION_MS,
+        maxAge: trusted
+          ? REFRESH_EXPIRATION_MS
+          : REFRESH_EXPIRATION_NO_TRUST_MS,
         sameSite: "strict",
       })
       .status(200);
@@ -99,7 +102,7 @@ router.post("/register", async function (req, res, next) {
         sameSite: "strict",
       })
       .status(200);
-    await sendConfirmEmail(email, username);
+    // await sendConfirmEmail(email, username);
     return res.status(201).json({ newUser });
   } catch (err) {
     return next(err);
