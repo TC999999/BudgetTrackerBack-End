@@ -32,13 +32,21 @@ class Transaction {
   static async addTransaction(title, user, transaction, operation, date) {
     try {
       if (transaction < 0) transaction *= -1;
-      await TransactionCollection.create({
+      const res = await TransactionCollection.create({
         title,
         user,
         transaction,
         operation,
         date,
       });
+      return {
+        _id: res._id,
+        date: res.date,
+        fromIncome: res.fromIncome,
+        operation: res.operation,
+        title: res.title,
+        transaction: res.transaction,
+      };
     } catch (err) {
       throw new BadRequestError(err.message);
     }

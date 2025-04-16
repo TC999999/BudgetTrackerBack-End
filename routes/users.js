@@ -32,14 +32,14 @@ router.patch("/update/assets", ensureLoggedIn, async function (req, res, next) {
   try {
     const { title, value, operation, date } = req.body;
     const user = await User.updateAssets(res.locals.user.id, value);
-    await Transaction.addTransaction(
+    let transaction = await Transaction.addTransaction(
       title,
       res.locals.user.id,
       value,
       operation,
       date
     );
-    return res.status(200).json({ user });
+    return res.status(200).json({ user, transaction });
   } catch (err) {
     return next(err);
   }
