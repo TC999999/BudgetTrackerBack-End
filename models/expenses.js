@@ -1,5 +1,6 @@
 const { BadRequestError, NotFoundError } = require("../expressError");
 const { ExpenseCollection } = require("../schemas/expenses");
+const { Types } = require("mongoose");
 
 // class for CRUD routes for expesne collection in db
 class Expenses {
@@ -38,13 +39,32 @@ class Expenses {
   }
 
   // gets and returns a user's five most recent expenses
-  static async getUserRecentExpenses(user) {
+  static async getUserRecentExpenses(userId) {
     try {
-      const res = await ExpenseCollection.find({ user })
-        .select("_id title budget transaction date")
-        .limit(5)
-        .sort({ date: -1 })
-        .populate({ path: "budget", select: "title" });
+      const res = await ExpenseCollection.aggregate([
+        { $match: { user: Types.ObjectId.createFromHexString(userId) } },
+        {
+          $lookup: {
+            from: "budgets",
+            localField: "budget",
+            foreignField: "_id",
+            as: "budget",
+          },
+        },
+        { $unwind: "$budget" },
+        {
+          $project: {
+            title: 1,
+            transaction: { $toString: { $trunc: ["$transaction", 2] } },
+            date: 1,
+            budget: "$budget.title",
+          },
+        },
+        { $sort: { date: -1 } },
+        {
+          $limit: 5,
+        },
+      ]);
       return res;
     } catch (err) {
       throw new BadRequestError(err.message);
