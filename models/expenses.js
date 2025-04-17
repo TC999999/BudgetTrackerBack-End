@@ -55,7 +55,11 @@ class Expenses {
         {
           $project: {
             title: 1,
-            transaction: { $toString: { $trunc: ["$transaction", 2] } },
+            transaction: {
+              $toString: {
+                $divide: [{ $trunc: [{ $toDecimal: "$transaction" }, 2] }, 100],
+              },
+            },
             date: 1,
             budget: "$budget.title",
           },
