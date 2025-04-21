@@ -22,8 +22,15 @@ class Income {
       if (incomeArr.length == 0) return [];
       const incomes = incomeMapUserID(incomeArr, user);
       let newIncomes = await IncomeCollection.insertMany(incomes);
-      let newIncomeIDs = newIncomes.map((d) => d._id);
-      return newIncomeIDs;
+      let newIncomesMap = newIncomes.map((d) => {
+        return {
+          _id: d._id,
+          salary: d.salary,
+          cronString: d.cronString,
+          user: d.user,
+        };
+      });
+      return newIncomesMap;
     } catch (err) {
       throw new BadRequestError(err);
     }

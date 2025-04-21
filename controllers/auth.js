@@ -11,8 +11,8 @@ const {
   createRefreshToken,
   verifyRefreshToken,
 } = require("../helpers/token");
-const { loadIncomeJobs } = require("../cron/loadIncomeJobs");
-const { sendConfirmEmail } = require("../sendEmail");
+const { scheduleManyIncomeJobs } = require("../cron/scheduleIncomeJob");
+// const { sendConfirmEmail } = require("../sendEmail");
 
 // whenever the page refreshes, checks for a refresh token and creates a new access token and
 // sets it in an http-only cookie, lets the front-end know that the token exists (DOES NOT
@@ -79,8 +79,8 @@ const registerUser = async (req, res, next) => {
       email,
       totalAssets,
     });
-    await Income.addManyIncomes(incomes, newUser._id);
-    await loadIncomeJobs();
+    let newIncomes = await Income.addManyIncomes(incomes, newUser._id);
+    await scheduleManyIncomeJobs(newIncomes);
     const refreshToken = createRefreshToken(newUser, trusted);
     res
       .cookie("refresh_token", refreshToken, {
