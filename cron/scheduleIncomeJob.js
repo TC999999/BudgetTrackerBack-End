@@ -21,6 +21,7 @@ async function scheduleIncomeJob(income) {
 // times on that particular income at scheduled
 // cron string interval
 async function scheduleManyIncomeJobs(incomes) {
+  if (!incomes.length) return;
   for (let income of incomes) {
     await scheduleIncomeJob(income);
   }
