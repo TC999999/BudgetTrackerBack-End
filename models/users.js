@@ -1,5 +1,9 @@
 const bcrypt = require("bcrypt");
-const { NotFoundError, BadRequestError } = require("../expressError");
+const {
+  NotFoundError,
+  BadRequestError,
+  UnacceptableError,
+} = require("../expressError");
 const { UserCollection } = require("../schemas/users");
 const { OTPCollection } = require("../schemas/OTP");
 const { makeOneTimeCode } = require("../helpers/makeOneTimeCode");
@@ -55,6 +59,46 @@ class User {
     if (!user) throw new NotFoundError(`User of ${userID} does not exist`);
 
     return user;
+  }
+
+  // finds a user with the specified id and returns their information; throws an error if user is not found
+  static async getForEdit(userID) {
+    const res = await UserCollection.findById(userID).select(
+      "-_id username email"
+    );
+    let user = res;
+    if (!user) throw new NotFoundError(`User of ${userID} does not exist`);
+
+    return user;
+  }
+
+  // checks if another user has the username or email the user has inputted for their new
+  // username/email; if either one exists, an error is thrown; else the user document is updated
+  static async updateUser(_id, username, email) {
+    const userCheck = await UserCollection.findOne({ username }).select(
+      "username"
+    );
+
+    if (userCheck) {
+      if (userCheck._id.toString() !== _id) {
+        throw new UnacceptableError("Username is taken by another user");
+      }
+    }
+
+    const emailCheck = await UserCollection.findOne({ email }).select("email");
+    if (emailCheck) {
+      if (emailCheck._id.toString() !== _id) {
+        throw new UnacceptableError("Email is taken by another user");
+      }
+    }
+
+    const res = await UserCollection.findByIdAndUpdate(
+      _id,
+      { $set: { username: username, email: email } },
+      { new: true }
+    ).select("username");
+
+    return res;
   }
 
   // finds a user with specified username and email address; if found, creates a one time verification

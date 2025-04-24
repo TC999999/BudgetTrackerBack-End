@@ -3,13 +3,17 @@ const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const {
   getCurrentUser,
   addTransaction,
-  getUser,
+  editUser,
+  getUserForEdit,
 } = require("../controllers/users");
 
 const router = express.Router();
 
-// route to get a single user
-router.get("/:id", ensureCorrectUser, getUser);
+// route to get a single user for edit
+router.get("/:id", ensureCorrectUser, getUserForEdit);
+
+// route to update a user's information
+router.patch("/:id/edit", ensureCorrectUser, editUser);
 
 // route to get user from id stored in access token data
 router.get("/get/currentuser", ensureLoggedIn, getCurrentUser);

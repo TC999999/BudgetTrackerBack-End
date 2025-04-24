@@ -2,9 +2,20 @@ const User = require("../models/users");
 const Transaction = require("../models/miscTransactions");
 
 // finds and returns data from the user document with the specified user id
-const getUser = async (req, res, next) => {
+const getUserForEdit = async (req, res, next) => {
   try {
-    const user = await User.get(req.params.id);
+    const user = await User.getForEdit(req.params.id);
+    return res.status(200).json({ user });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// updates a user's information
+const editUser = async (req, res, next) => {
+  try {
+    let { _id, username, email } = req.body;
+    const user = await User.updateUser(_id, username, email);
     return res.status(200).json({ user });
   } catch (err) {
     return next(err);
@@ -40,4 +51,4 @@ const addTransaction = async (req, res, next) => {
   }
 };
 
-module.exports = { getUser, getCurrentUser, addTransaction };
+module.exports = { getUserForEdit, editUser, getCurrentUser, addTransaction };
