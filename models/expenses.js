@@ -62,6 +62,7 @@ class Expenses {
             },
             date: 1,
             budget: "$budget.title",
+            budgetID: "$budget._id",
           },
         },
         { $sort: { date: -1 } },
