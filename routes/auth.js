@@ -2,7 +2,6 @@ const express = require("express");
 const {
   findRefreshToken,
   loginUser,
-  registerUser,
   confirmUserInfo,
   confirmUserOTP,
   resetUserPassword,
@@ -16,9 +15,6 @@ router.get("/token", findRefreshToken);
 
 // route to login user
 router.post("/login", loginUser);
-
-// route to register new user
-router.post("/register", registerUser);
 
 // route to confirm user info
 router.post("/confirmUserInfo", confirmUserInfo);
