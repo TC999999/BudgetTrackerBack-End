@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 // budget titles will only accept titles with the characters in the regExp
 function validCharacters(title) {
-  let exp = /^[\w ]+$/i;
+  let exp = /^[\w-'":/ ]+$/i;
   return exp.test(title);
 }
 
@@ -17,7 +17,7 @@ const budgetValidators = [
   {
     validator: validCharacters,
     message:
-      "Budget title contains invalid characters. Only letters or numbers are accepted.",
+      "Budget title contains invalid characters. Only letters, numbers, and certain special characters are accepted.",
   },
   {
     validator: validTrim,

@@ -7,10 +7,7 @@ const { makeOneTimeCode } = require("../helpers/makeOneTimeCode");
 
 class Register {
   static async getOneTimeCode(username, email) {
-    let userexists = await UserCollection.exists({ username });
-    console.log(userexists);
     let otp = makeOneTimeCode();
-
     await RegisterCollection.create({
       username,
       email,

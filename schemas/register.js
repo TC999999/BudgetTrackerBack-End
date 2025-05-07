@@ -49,24 +49,34 @@ const RegisterSchema = new Schema(
 
 // when a document is creates, hashed the one time verification code and password using bcrypt
 RegisterSchema.pre("save", async function (next) {
-  if (this.isModified("hashedOneTimeCode")) {
-    this.hashedOneTimeCode = await bcrypt.hash(
-      this.hashedOneTimeCode,
-      BCRYPT_WORK_FACTOR
-    );
-  }
   if (this.isModified("username")) {
     const usernameExists = await UserCollection.exists({
       username: this.username,
     });
 
     if (usernameExists)
-      return next(new UnacceptableError("Username already exists!"));
+      return next(
+        new UnacceptableError(
+          `Username already exists! Please choose a different one.`
+        )
+      );
   }
+
   if (this.isModified("email")) {
     const emailExists = await UserCollection.exists({ email: this.email });
     if (emailExists)
-      return next(new UnacceptableError("Email Address already exists!"));
+      return next(
+        new UnacceptableError(
+          `Email Address already exists! Please choose a different one.`
+        )
+      );
+  }
+
+  if (this.isModified("hashedOneTimeCode")) {
+    this.hashedOneTimeCode = await bcrypt.hash(
+      this.hashedOneTimeCode,
+      BCRYPT_WORK_FACTOR
+    );
   }
 
   next();

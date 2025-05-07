@@ -3,7 +3,7 @@ const { IncomeCollection } = require("../schemas/incomes");
 const { TransactionCollection } = require("../schemas/miscTransactions");
 const { makeCronDates } = require("../helpers/setUserIDIncomes");
 const { cronEvent } = require("./cronEvents");
-// const { sendIncomeEmail } = require("../sendEmail");
+const { sendIncomeEmail } = require("../sendEmail");
 
 // created function for cron job that updates a user's total asset value and changes update dates
 // in db and retrieves the new information to frontend for real-time updates using an event emitter
@@ -30,12 +30,10 @@ async function incomeJob(_id, salary, cronString, user) {
     fromIncome: true,
     date: lastReceived,
   });
-
+  await sendIncomeEmail(email, username, title, salary, totalAssets);
   cronEvent.emit(`income_for_${user}`, {
     newTotalAssets,
   });
 }
-
-// await sendIncomeEmail(email, username, title, salary, totalAssets);
 
 module.exports = { incomeJob };

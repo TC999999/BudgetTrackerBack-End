@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 // expense titles can only contain characters in the regular expression
 function validCharacters(title) {
-  let exp = /^[\w ]+$/i;
+  let exp = /^[\w-'":/ ]+$/i;
   return exp.test(title);
 }
 
@@ -17,7 +17,7 @@ const expenseValidators = [
   {
     validator: validCharacters,
     message:
-      "Expense title contains invalid characters. Only letters or numbers are accepted.",
+      "Expense title contains invalid characters. Only letters, numbers, and certain special characters are accepted.",
   },
   {
     validator: validTrim,
