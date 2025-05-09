@@ -3,6 +3,7 @@ const {
   NotFoundError,
   BadRequestError,
   UnacceptableError,
+  UnauthorizedError,
 } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
 const { OTPCollection } = require("../schemas/OTP");
@@ -74,31 +75,21 @@ class User {
 
   // checks if another user has the username or email the user has inputted for their new
   // username/email; if either one exists, an error is thrown; else the user document is updated
-  static async updateUser(_id, username, email) {
-    const userCheck = await UserCollection.findOne({ username }).select(
-      "username"
-    );
-
-    if (userCheck) {
-      if (userCheck._id.toString() !== _id) {
-        throw new UnacceptableError("Username is taken by another user");
-      }
+  static async updateUser(_id, username, email, password) {
+    const passwordCheck = await UserCollection.findById(_id).select("password");
+    if (
+      passwordCheck &&
+      (await bcrypt.compare(password, passwordCheck.password))
+    ) {
+      const res = await UserCollection.findByIdAndUpdate(
+        _id,
+        { $set: { username: username, email: email } },
+        { new: true }
+      ).select("username");
+      return res;
+    } else {
+      throw new UnauthorizedError("Incorrect Password!");
     }
-
-    const emailCheck = await UserCollection.findOne({ email }).select("email");
-    if (emailCheck) {
-      if (emailCheck._id.toString() !== _id) {
-        throw new UnacceptableError("Email is taken by another user");
-      }
-    }
-
-    const res = await UserCollection.findByIdAndUpdate(
-      _id,
-      { $set: { username: username, email: email } },
-      { new: true }
-    ).select("username");
-
-    return res;
   }
 
   // finds a user with specified username and email address; if found, creates a one time verification

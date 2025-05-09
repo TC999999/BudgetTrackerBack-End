@@ -14,8 +14,8 @@ const getUserForEdit = async (req, res, next) => {
 // updates a user's information
 const editUser = async (req, res, next) => {
   try {
-    let { _id, username, email } = req.body;
-    const user = await User.updateUser(_id, username, email);
+    let { _id, username, email, password } = req.body;
+    const user = await User.updateUser(_id, username, email, password);
     return res.status(200).json({ user });
   } catch (err) {
     return next(err);
