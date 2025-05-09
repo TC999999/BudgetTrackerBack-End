@@ -54,16 +54,16 @@ const BudgetSchema = new Schema(
       ],
       default: 1,
       min: [0, "Budget value cannot go below 0"],
-      get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
+      get: (v) => v / 100,
     },
     moneySpent: {
       type: Number,
       required: true,
       default: 0,
       min: [0, "Budget spent value cannot go below 0"],
-      get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
+      get: (v) => v / 100,
     },
   },
   { versionKey: false, toJSON: { getters: true }, id: false }

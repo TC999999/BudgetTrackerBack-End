@@ -54,8 +54,8 @@ const UserSchema = new Schema(
       default: 0,
       min: 0,
       max: [99999999999999, "Maximum Total Asset Value Exceeded"],
-      get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
+      get: (v) => v / 100,
     },
   },
   { versionKey: false, toJSON: { getters: true }, id: false }

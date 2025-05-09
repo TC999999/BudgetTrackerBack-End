@@ -31,11 +31,7 @@ const addNewUserBudget = async (req, res, next) => {
     const { id } = req.params;
     const { title, moneyAllocated } = req.body;
     const budget = await Budget.addBudget(title, moneyAllocated, id);
-    const user = await User.addBudget(
-      res.locals.user.id,
-      moneyAllocated,
-      budget._id
-    );
+    const user = await User.addBudget(id, moneyAllocated, budget._id);
     return res
       .status(201)
       .json({ newUserBudget: budget, newAssets: user.totalAssets });

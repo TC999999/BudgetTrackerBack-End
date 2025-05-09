@@ -46,15 +46,14 @@ const ExpenseSchema = new Schema(
       ref: "Budget",
       required: [true, "Must have a budget id for this expense."],
     },
-
     user: { type: Schema.Types.ObjectId, ref: "User" },
     transaction: {
       type: Number,
       min: [1, "Transaction value must be $0.01 or greater"],
       required: true,
       default: 1,
-      get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
+      get: (v) => v / 100,
     },
     date: {
       type: Date,

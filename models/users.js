@@ -111,7 +111,7 @@ class User {
     }).select("-_id username email");
     if (!res)
       throw new NotFoundError(
-        `Could not find user ${username} connected to the given email address. Please check if either your username or email address is spelled correctly.`
+        `Could not find user ${username} connected to the given email address. Please check if both your username and email address are spelled correctly.`
       );
 
     let otp = makeOneTimeCode();
@@ -206,7 +206,6 @@ class User {
       },
       { new: true }
     ).select("totalAssets");
-
     return res;
   }
 

@@ -18,7 +18,7 @@ const addNewUserIncome = async (req, res, next) => {
     );
     await scheduleIncomeJob({
       _id: newUserIncome._id,
-      salary: salary.toFixed(2),
+      salary,
       cronString,
       user: id,
     });
@@ -55,7 +55,7 @@ const updateSingleUserIncome = async (req, res, next) => {
     );
     await updateIncomeJob({
       _id: incomeID,
-      salary: salary.toFixed(2),
+      salary,
       cronString,
       user: id,
     });

@@ -60,8 +60,8 @@ const TransactionSchema = new Schema(
       min: [1, "Transaction value must be $0.01 or greater"],
       required: true,
       default: 1,
-      get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
+      get: (v) => v / 100,
     },
     operation: {
       type: String,

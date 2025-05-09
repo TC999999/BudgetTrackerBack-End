@@ -49,8 +49,8 @@ const IncomeSchema = new Schema(
       type: Number,
       required: [true, "Income must have a value"],
       min: 1,
-      get: (v) => (v / 100).toFixed(2),
       set: (v) => v * 100,
+      get: (v) => v / 100,
     },
     cronString: {
       type: String,
