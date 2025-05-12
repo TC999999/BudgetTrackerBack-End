@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const {
   NotFoundError,
   BadRequestError,
-  UnacceptableError,
   UnauthorizedError,
 } = require("../expressError");
 const { UserCollection } = require("../schemas/users");
@@ -18,10 +17,9 @@ class User {
     const res = await UserCollection.findOne({ username }).select(
       "username password totalAssets _id"
     );
-    let user = res;
-    if (user && (await bcrypt.compare(password, user.password))) {
-      delete user._doc.password;
-      return user;
+    if (res && (await bcrypt.compare(password, res.password))) {
+      delete res._doc.password;
+      return res;
     }
     throw new NotFoundError("Invalid username/password");
   }
@@ -41,7 +39,6 @@ class User {
         username: res.username,
         totalAssets: res.totalAssets,
       };
-      return res;
     } catch (err) {
       if (err.name === "ValidationError") {
         throw new BadRequestError(err.errors);

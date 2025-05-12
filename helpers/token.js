@@ -2,7 +2,9 @@ const jwt = require("jsonwebtoken");
 const {
   REFRESH_SECRET_KEY,
   REFRESH_EXPIRATION,
+  REFRESH_EXPIRATION_MS,
   REFRESH_EXPIRATION_NO_TRUST,
+  REFRESH_EXPIRATION_NO_TRUST_MS,
   ACCESS_SECRET_KEY,
   ACCESS_EXPIRATION,
   ACCESS_EXPIRATION_MS,
@@ -22,6 +24,28 @@ function createAccessToken(user) {
   return jwt.sign(payload, ACCESS_SECRET_KEY, {
     expiresIn: ACCESS_EXPIRATION,
   });
+}
+
+// sets both access and refresh tokens upon login/register
+function setCookieTokens(res, user, trusted) {
+  const refreshToken = createRefreshToken(user, trusted);
+  res
+    .cookie("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: trusted ? REFRESH_EXPIRATION_MS : REFRESH_EXPIRATION_NO_TRUST_MS,
+      sameSite: "strict",
+    })
+    .status(200);
+  const accessToken = createAccessToken(user);
+  res
+    .cookie("access_token", accessToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: ACCESS_EXPIRATION_MS,
+      sameSite: "strict",
+    })
+    .status(200);
 }
 
 // checks if refresh token exists; if it does, creates a new access token and stores it as an http only
@@ -49,7 +73,6 @@ function verifyRefreshToken(refreshToken, res) {
 }
 
 module.exports = {
-  createRefreshToken,
+  setCookieTokens,
   verifyRefreshToken,
-  createAccessToken,
 };

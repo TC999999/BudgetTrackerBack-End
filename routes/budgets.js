@@ -1,5 +1,5 @@
 const express = require("express");
-const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
+const { ensureCorrectUser } = require("../middleware/auth");
 const {
   getAllUserBudgets,
   getSingleUserBudget,
@@ -29,7 +29,7 @@ router.patch(
 // route for deleting a single budget that belongs to a single user
 router.delete(
   "/delete/:budgetID/user/:id",
-  ensureLoggedIn,
+  ensureCorrectUser,
   deleteSingleUserBudget
 );
 

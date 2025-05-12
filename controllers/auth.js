@@ -1,14 +1,5 @@
 const User = require("../models/users");
-const {
-  ACCESS_EXPIRATION_MS,
-  REFRESH_EXPIRATION_MS,
-  REFRESH_EXPIRATION_NO_TRUST_MS,
-} = require("../config");
-const {
-  createAccessToken,
-  createRefreshToken,
-  verifyRefreshToken,
-} = require("../helpers/token");
+const { verifyRefreshToken, setCookieTokens } = require("../helpers/token");
 
 // whenever the page refreshes, checks for a refresh token and creates a new access token and
 // sets it in an http-only cookie, lets the front-end know that the token exists (DOES NOT
@@ -35,27 +26,7 @@ const loginUser = async (req, res, next) => {
       );
     }
     const user = await User.authenticate(username, password);
-    const refreshToken = createRefreshToken(user, trusted);
-    const accessToken = createAccessToken(user);
-    res
-      .cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: trusted
-          ? REFRESH_EXPIRATION_MS
-          : REFRESH_EXPIRATION_NO_TRUST_MS,
-        sameSite: "strict",
-      })
-      .status(200);
-    res
-      .cookie("access_token", accessToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: ACCESS_EXPIRATION_MS,
-        sameSite: "strict",
-      })
-      .status(200);
-
+    setCookieTokens(res, user, trusted);
     return res.status(200).json({ user });
   } catch (err) {
     return next(err);
@@ -78,7 +49,7 @@ const confirmUserOTP = async (req, res, next) => {
   try {
     const { username, email, code } = req.body;
     await User.confirmUserCode(username, email, code);
-    return res.status(201).json({ message: "verification code confirmed!" });
+    return res.status(201).json({ message: "Verification Code Confirmed!" });
   } catch (err) {
     return next(err);
   }
@@ -89,7 +60,7 @@ const resetUserPassword = async (req, res, next) => {
   try {
     const { username, email, newPassword } = req.body;
     await User.resetUserPassword(username, email, newPassword);
-    return res.status(200).json({ message: "password reset success" });
+    return res.status(200).json({ message: "Successfully Reset Password!" });
   } catch (err) {
     return next(err);
   }
@@ -100,7 +71,7 @@ const logoutUser = async (req, res, next) => {
   try {
     res.clearCookie("access_token").status(200);
     res.clearCookie("refresh_token").status(200);
-    res.send();
+    return res.status(200).json({ message: "Successfully Logged Out!" });
   } catch (err) {
     return next(err);
   }

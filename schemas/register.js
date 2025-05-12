@@ -47,7 +47,8 @@ const RegisterSchema = new Schema(
   { versionKey: false, id: false }
 );
 
-// when a document is creates, hashed the one time verification code and password using bcrypt
+// when a document is creates, hashed the one time verification code using bcrypt and ensures no user has the same
+// username or email
 RegisterSchema.pre("save", async function (next) {
   if (this.isModified("username")) {
     const usernameExists = await UserCollection.exists({

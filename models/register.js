@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const { NotFoundError, BadRequestError } = require("../expressError");
 const { sendRegisterEmail } = require("../sendEmail");
 const { RegisterCollection } = require("../schemas/register");
-const { UserCollection } = require("../schemas/users");
 const { makeOneTimeCode } = require("../helpers/makeOneTimeCode");
 
 class Register {

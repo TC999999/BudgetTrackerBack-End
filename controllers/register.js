@@ -1,12 +1,7 @@
 const Register = require("../models/register");
 const User = require("../models/users");
 const Income = require("../models/incomes");
-const {
-  ACCESS_EXPIRATION_MS,
-  REFRESH_EXPIRATION_MS,
-  REFRESH_EXPIRATION_NO_TRUST_MS,
-} = require("../config");
-const { createAccessToken, createRefreshToken } = require("../helpers/token");
+const { setCookieTokens } = require("../helpers/token");
 const { scheduleManyIncomeJobs } = require("../cron/scheduleIncomeJob");
 const { sendConfirmEmail } = require("../sendEmail");
 
@@ -46,26 +41,7 @@ const registerUser = async (req, res, next) => {
     });
     let newIncomes = await Income.addManyIncomes(incomes, newUser._id);
     await scheduleManyIncomeJobs(newIncomes);
-    const refreshToken = createRefreshToken(newUser, trusted);
-    res
-      .cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: trusted
-          ? REFRESH_EXPIRATION_MS
-          : REFRESH_EXPIRATION_NO_TRUST_MS,
-        sameSite: "strict",
-      })
-      .status(200);
-    const accessToken = createAccessToken(newUser);
-    res
-      .cookie("access_token", accessToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: ACCESS_EXPIRATION_MS,
-        sameSite: "strict",
-      })
-      .status(200);
+    setCookieTokens(res, newUser, trusted);
     await sendConfirmEmail(email, username);
     return res.status(201).json({ newUser });
   } catch (err) {

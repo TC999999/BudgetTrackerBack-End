@@ -36,11 +36,12 @@ const getCurrentUser = async (req, res, next) => {
 // found in the access token as well as the new transaction data
 const addTransaction = async (req, res, next) => {
   try {
+    const { id } = req.params;
     const { title, value, operation, date } = req.body;
-    const user = await User.updateAssets(res.locals.user.id, value);
+    const user = await User.updateAssets(id, value);
     const transaction = await Transaction.addTransaction(
       title,
-      res.locals.user.id,
+      id,
       value,
       operation,
       date
