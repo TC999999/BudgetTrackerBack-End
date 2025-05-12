@@ -20,7 +20,8 @@ function authenticateJWT(req, res, next) {
   }
 }
 
-// if user is not found is res.locals (if access token not in cookies), refuses request and sends an unacceptable error
+// if user is not found is res.locals (if access token not in cookies), refuses request and sends
+// an unacceptable error
 function ensureLoggedIn(req, res, next) {
   try {
     if (!res.locals.user) {

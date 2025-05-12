@@ -54,7 +54,6 @@ RegisterSchema.pre("save", async function (next) {
     const usernameExists = await UserCollection.exists({
       username: this.username,
     });
-
     if (usernameExists)
       return next(
         new UnacceptableError(
