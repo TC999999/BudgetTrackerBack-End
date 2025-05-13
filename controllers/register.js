@@ -5,6 +5,8 @@ const { setCookieTokens } = require("../helpers/token");
 const { scheduleManyIncomeJobs } = require("../cron/scheduleIncomeJob");
 const { sendConfirmEmail } = require("../sendEmail");
 
+// controller for adding new user info to registration collection and sending email with
+// one time verification code
 const getOneTimeCode = async (req, res, next) => {
   try {
     const { username, email } = req.body;
@@ -15,6 +17,7 @@ const getOneTimeCode = async (req, res, next) => {
   }
 };
 
+// controller for confirming info from confirming one time verification code for registration
 const confirmOneTimeCode = async (req, res, next) => {
   try {
     const { username, email, code } = req.body;
