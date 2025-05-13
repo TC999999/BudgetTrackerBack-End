@@ -18,6 +18,15 @@ function validOperation(operation) {
   return operation === "add" || operation === "subtract";
 }
 
+function validBudgetOperation(operation) {
+  return (
+    operation === "Created" ||
+    operation === "Edited" ||
+    operation === "Deleted" ||
+    operation === "-"
+  );
+}
+
 // array of validators for miscellaneous transaction titles
 const transactionTitleValidators = [
   {
@@ -31,10 +40,20 @@ const transactionTitleValidators = [
   },
 ];
 
+// array of validators for transaction operation
 const transactionOperationValidators = [
   {
     validator: validOperation,
-    message: "Transaction operation must either be add or subtract",
+    message: "Transaction operation must either be 'add' or 'subtract'.",
+  },
+];
+
+// array of validators for transaction budget operation
+const transactionBudgetOperationValidators = [
+  {
+    validator: validBudgetOperation,
+    message:
+      "Transaction Budget Operation must be 'Created', 'Edited', 'Deleted', or '-'.",
   },
 ];
 
@@ -69,11 +88,25 @@ const TransactionSchema = new Schema(
       required: true,
       validate: transactionOperationValidators,
     },
-    fromIncome: { type: Boolean, default: false, required: true },
+    newBalance: {
+      type: Number,
+      min: [0, "New balance must be equal to $0.00 or greater."],
+      required: true,
+      default: 0,
+      set: (v) => v * 100,
+      get: (v) => v / 100,
+    },
     date: {
       type: Date,
       default: Date.now,
       required: true,
+    },
+    fromIncome: { type: Boolean, default: false, required: true },
+    budgetOperation: {
+      type: String,
+      default: "-",
+      required: true,
+      validate: transactionBudgetOperationValidators,
     },
   },
   { versionKey: false, toJSON: { getters: true }, id: false }

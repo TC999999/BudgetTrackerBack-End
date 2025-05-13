@@ -39,13 +39,14 @@ const addTransaction = async (req, res, next) => {
     const { id } = req.params;
     const { title, value, operation, date } = req.body;
     const user = await User.updateAssets(id, value);
-    const transaction = await Transaction.addTransaction(
+    const transaction = await Transaction.addTransaction({
       title,
-      id,
-      value,
+      user: id,
+      transaction: value,
       operation,
-      date
-    );
+      newBalance: user.totalAssets,
+      date,
+    });
     return res.status(201).json({ user, transaction });
   } catch (err) {
     return next(err);

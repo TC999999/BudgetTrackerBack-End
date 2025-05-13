@@ -7,7 +7,9 @@ class Transaction {
   static async getUserTransactions(user) {
     try {
       const res = await TransactionCollection.find({ user })
-        .select("_id title date transaction operation fromIncome")
+        .select(
+          "_id title date transaction operation fromIncome budgetOperation newBalance"
+        )
         .sort({ date: -1 });
       return res;
     } catch (err) {
@@ -19,7 +21,9 @@ class Transaction {
   static async getUserRecentTransactions(user) {
     try {
       const res = await TransactionCollection.find({ user })
-        .select("_id title date transaction operation fromIncome")
+        .select(
+          "_id title date transaction operation fromIncome budgetOperation newBalance"
+        )
         .limit(5)
         .sort({ date: -1 });
       return res;
@@ -29,23 +33,25 @@ class Transaction {
   }
 
   // adds a new transaction document to db with a title, user id, transaction value, and date
-  static async addTransaction(title, user, transaction, operation, date) {
+  static async addTransaction(transactionInput) {
     try {
-      if (transaction < 0) transaction *= -1;
-      const res = await TransactionCollection.create({
-        title,
-        user,
-        transaction,
-        operation,
-        date,
-      });
+      let submitTransaction = {
+        ...transactionInput,
+        transaction:
+          transactionInput.transaction < 0
+            ? transactionInput.transaction * -1
+            : transactionInput.transaction,
+      };
+      const res = await TransactionCollection.create(submitTransaction);
       return {
         _id: res._id,
-        date: res.date,
-        fromIncome: res.fromIncome,
-        operation: res.operation,
         title: res.title,
         transaction: res.transaction,
+        operation: res.operation,
+        newBalance: res.newBalance,
+        fromIncome: res.fromIncome,
+        budgetOperation: res.budgetOperation,
+        date: res.date,
       };
     } catch (err) {
       throw new BadRequestError(err.message);

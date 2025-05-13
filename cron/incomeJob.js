@@ -27,6 +27,7 @@ async function incomeJob(_id, salary, cronString, user) {
     title,
     user,
     transaction: salary,
+    newBalance: totalAssets,
     fromIncome: true,
     date: lastReceived,
   });
