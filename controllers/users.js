@@ -1,5 +1,6 @@
 const User = require("../models/users");
 const Transaction = require("../models/miscTransactions");
+const { sendEditEmail } = require("../sendEmail");
 
 // finds and returns data from the user document with the specified user id
 const getUserForEdit = async (req, res, next) => {
@@ -16,6 +17,7 @@ const editUser = async (req, res, next) => {
   try {
     let { _id, username, email, password } = req.body;
     const user = await User.updateUser(_id, username, email, password);
+    await sendEditEmail(email, username);
     return res.status(200).json({ user });
   } catch (err) {
     return next(err);

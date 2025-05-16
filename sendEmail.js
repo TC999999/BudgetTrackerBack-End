@@ -65,6 +65,18 @@ async function sendConfirmEmail(toEmail, username) {
   await transporter.sendMail(mailOptions);
 }
 
+// send email notifying a user's information (username/email address) has been updated
+async function sendEditEmail(toEmail, username) {
+  const mailOptions = {
+    from: `"Personal Piggybank" <${NODE_MAILER_USER}>`,
+    to: toEmail,
+    subject: "Your Information has Been Updated!",
+    template: "edit",
+    context: { username },
+  };
+  await transporter.sendMail(mailOptions);
+}
+
 // send email notifying user that their total assets have been increased with scheduled income
 async function sendIncomeEmail(toEmail, username, title, salary, totalAssets) {
   const mailOptions = {
@@ -81,5 +93,6 @@ module.exports = {
   sendRegisterEmail,
   sendResetEmail,
   sendConfirmEmail,
+  sendEditEmail,
   sendIncomeEmail,
 };
